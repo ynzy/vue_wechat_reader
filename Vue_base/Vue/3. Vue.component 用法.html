@@ -1,0 +1,59 @@
+<!------------------------------------------------------------
+  文件名:   ch3-3.html
+  第三章:   Vue.component 用法
+  开发平台: VSCode 1.39.1
+  Vue 实战小慕读书中后台 By Sam
+------------------------------------------------------------->
+<html>
+  <head>
+    <title>Vue.component 用法</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="root">
+      <Test :msg="message"></Test>
+    </div>
+    <script>
+      Vue.component('Test', {
+        template: '<div>{{msg}}</div>',
+        props: {
+          msg: {
+            type: String,
+            default: 'default message'
+          }
+        }
+      })
+      new Vue({
+        el: '#root',
+        data() {
+          return {
+            message: "Test Component"
+          }
+        }
+      })
+
+      const getQueryParams = function () {
+  // var url = document.location.toString()
+  var url = 'http://192.168.1.122:9020/?appId=wxf4b72971eacba4d6#/'
+  // 如果url中有特殊字符则需要进行一下解码
+  url = decodeURI(url)
+  var arr1 = url.split("?");
+  var obj = {}
+  if (arr1.length > 1) {
+    let index = arr1[1].indexOf('#')
+    console.log(arr1[1].slice(0,index));
+    arr1[1] = index == -1 ? arr1[1] : arr1[1].slice(0,index)
+    var arr2 = arr1[1].split("&");
+    for (var i = 0; i < arr2.length; i++) {
+      var curArr = arr2[i].split("=");
+      obj[curArr[0]] = decodeURIComponent(curArr[1])
+    }
+  }
+  return obj
+}
+
+let query = getQueryParams()
+console.log(query);
+    </script>
+  </body>
+</html>
