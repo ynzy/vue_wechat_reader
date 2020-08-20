@@ -1,0 +1,32 @@
+<!------------------------------------------------------------
+  文件名:   ch4-2.html
+  第三章:   过滤器 filter
+  开发平台: VSCode 1.39.1
+  Vue 实战小慕读书中后台 By Sam
+------------------------------------------------------------->
+<html>
+  <head>
+    <title>过滤器 filter</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="root">
+      {{message | lower}}
+    </div>
+    <script>
+      new Vue({
+        el: '#root',
+        filters: {
+          lower(value) {
+            return value.toLowerCase()
+          }
+        },
+        data() {
+          return {
+            message: 'Hello Vue'
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
