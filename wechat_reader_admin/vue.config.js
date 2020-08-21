@@ -117,6 +117,12 @@ module.exports = {
               }
             })
           config.optimization.runtimeChunk('single')
+
+          config
+            // https://webpack.js.org/configuration/devtool/#development  eval cheap-source-map
+            .when(process.env.NODE_ENV === 'development',
+              config => config.devtool('source-map')
+            )
         }
       )
   }
