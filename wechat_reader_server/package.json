@@ -1,0 +1,13 @@
+{
+  "name": "wechat_reader_server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "serve": "nodemon app.js"
+  },
+  "dependencies": {
+    "boom": "^7.3.0",
+    "express": "^4.17.1"
+  }
+}
