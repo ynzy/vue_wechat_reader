@@ -11,10 +11,14 @@ var fs = require('fs');
 
 var https = require('https');
 
-var bodyParser = require('body-parser'); // 创建 express 应用
+var bodyParser = require('body-parser');
+
+var cors = require('cors'); // 创建 express 应用
 
 
-var app = express(); // 解析query
+var app = express(); // 解决跨域问题
+
+app.use(cors()); // 解析query
 
 app.use(bodyParser.urlencoded({
   extended: true

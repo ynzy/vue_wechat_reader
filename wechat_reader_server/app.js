@@ -4,9 +4,12 @@ const router = require('./router')
 const fs = require('fs')
 const https = require('https')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 // 创建 express 应用
 const app = express()
 
+// 解决跨域问题
+app.use(cors())
 // 解析query
 app.use(bodyParser.urlencoded({ extended: true }))
 // 解析json
