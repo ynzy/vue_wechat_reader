@@ -4,7 +4,7 @@ const userRouter = require('./user')
 const {
   CODE_ERROR
 } = require('../utils/constant')
-const jwtAuth = require('./jwt')
+const { jwtAuth } = require('../utils/jwt')
 const Result = require('../models/Result')
 // 注册路由
 const router = express.Router()

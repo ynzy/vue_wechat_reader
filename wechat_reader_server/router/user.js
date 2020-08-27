@@ -1,12 +1,12 @@
 const express = require('express')
 const boom = require('boom')
-const jwt = require('jsonwebtoken')
 const { body, validationResult } = require('express-validator')
 
 const Result = require('../models/Result')
 const { login, findUser } = require('../services/user')
-const { md5, decoded } = require('../utils')
-const { PWD_SALT, PRIVATE_KEY, JWT_EXPIRED } = require('../utils/constant')
+const { md5 } = require('../utils')
+const { PWD_SALT } = require('../utils/constant')
+const { jwtToken, jwtDecoded } = require('../utils/jwt')
 
 const router = express.Router()
 
@@ -30,11 +30,7 @@ router.post('/login',
         if (!user || user.length === 0) {
           new Result('登录失败').fail(res)
         } else {
-          const token = jwt.sign(
-            { username },
-            PRIVATE_KEY,
-            { expiresIn: JWT_EXPIRED }
-          )
+          const token = jwtToken(username)
           console.log(token);
           new Result({ token }, '登录成功').success(res)
         }
@@ -44,7 +40,7 @@ router.post('/login',
     }
   })
 router.get('/info', function (req, res, next) {
-  const decode = decoded(req)
+  const decode = jwtDecoded(req)
   console.log(decode);
   if (decode && decode.username) {
     findUser(decode.username).then(user => {

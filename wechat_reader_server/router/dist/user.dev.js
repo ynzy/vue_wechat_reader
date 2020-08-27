@@ -12,8 +12,6 @@ var express = require('express');
 
 var boom = require('boom');
 
-var jwt = require('jsonwebtoken');
-
 var _require = require('express-validator'),
     body = _require.body,
     validationResult = _require.validationResult;
@@ -25,13 +23,14 @@ var _require2 = require('../services/user'),
     findUser = _require2.findUser;
 
 var _require3 = require('../utils'),
-    md5 = _require3.md5,
-    decoded = _require3.decoded;
+    md5 = _require3.md5;
 
 var _require4 = require('../utils/constant'),
-    PWD_SALT = _require4.PWD_SALT,
-    PRIVATE_KEY = _require4.PRIVATE_KEY,
-    JWT_EXPIRED = _require4.JWT_EXPIRED;
+    PWD_SALT = _require4.PWD_SALT;
+
+var _require5 = require('../utils/jwt'),
+    jwtToken = _require5.jwtToken,
+    jwtDecoded = _require5.jwtDecoded;
 
 var router = express.Router();
 router.post('/login', [body('username').isString().withMessage('username类型不正确'), body('password').isString().withMessage('password类型不正确')], function (req, res, next) {
@@ -54,11 +53,7 @@ router.post('/login', [body('username').isString().withMessage('username类型�
       if (!user || user.length === 0) {
         new Result('登录失败').fail(res);
       } else {
-        var token = jwt.sign({
-          username: username
-        }, PRIVATE_KEY, {
-          expiresIn: JWT_EXPIRED
-        });
+        var token = jwtToken(username);
         console.log(token);
         new Result({
           token: token
@@ -70,7 +65,7 @@ router.post('/login', [body('username').isString().withMessage('username类型�
   }
 });
 router.get('/info', function (req, res, next) {
-  var decode = decoded(req);
+  var decode = jwtDecoded(req);
   console.log(decode);
 
   if (decode && decode.username) {

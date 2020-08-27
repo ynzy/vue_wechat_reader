@@ -9,19 +9,6 @@ function md5(s) {
     .update(String(s)).digest('hex');
 }
 
-// jwt解析
-function decoded(req) {
-  const authorization = req.get('Authorization')
-  let token = ''
-  if (authorization.indexOf('Bearer') >= 0) {
-    token = authorization.replace('Bearer ', '')
-  } else {
-    token = authorization
-  }
-  return jwt.verify(token, PRIVATE_KEY)
-}
-
 module.exports = {
-  md5,
-  decoded
+  md5
 }

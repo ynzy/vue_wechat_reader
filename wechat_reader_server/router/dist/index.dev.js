@@ -9,7 +9,8 @@ var userRouter = require('./user');
 var _require = require('../utils/constant'),
     CODE_ERROR = _require.CODE_ERROR;
 
-var jwtAuth = require('./jwt');
+var _require2 = require('../utils/jwt'),
+    jwtAuth = _require2.jwtAuth;
 
 var Result = require('../models/Result'); // 注册路由
 
