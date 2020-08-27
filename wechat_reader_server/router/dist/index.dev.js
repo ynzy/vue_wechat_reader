@@ -7,10 +7,15 @@ var boom = require('boom');
 var userRouter = require('./user');
 
 var _require = require('../utils/constant'),
-    CODE_ERROR = _require.CODE_ERROR; // 注册路由
+    CODE_ERROR = _require.CODE_ERROR;
+
+var jwtAuth = require('./jwt');
+
+var Result = require('../models/Result'); // 注册路由
 
 
 var router = express.Router();
+router.use(jwtAuth);
 router.get('/', function (req, res) {
   res.send('欢迎学习小慕读书管理后台');
 }); // 通过 userRouter 来处理 /user 路由，对路由处理进行解耦
@@ -33,14 +38,22 @@ router.use(function (req, res, next) {
  */
 
 router.use(function (err, req, res, next) {
-  var msg = err && err.message || '系统错误';
-  var statusCode = err.output && err.output.statusCode || 500;
-  var errorMsg = err.output && err.output.payload && err.output.payload.error || err.message;
-  res.status(statusCode).json({
-    code: CODE_ERROR,
-    msg: msg,
-    error: statusCode,
-    errorMsg: errorMsg
-  });
+  if (err.name && err.name === 'UnauthorizedError') {
+    var _err$status = err.status,
+        status = _err$status === void 0 ? 401 : _err$status,
+        message = err.message;
+    new Result(null, 'Token验证失败', {
+      error: status,
+      errMsg: message
+    }).jwtError(res.status(status));
+  } else {
+    var msg = err && err.message || '系统错误';
+    var statusCode = err.output && err.output.statusCode || 500;
+    var errorMsg = err.output && err.output.payload && err.output.payload.error || err.message;
+    new Result(null, msg, {
+      error: statusCode,
+      errorMsg: errorMsg
+    }).fail(res.status(statusCode));
+  }
 });
 module.exports = router;

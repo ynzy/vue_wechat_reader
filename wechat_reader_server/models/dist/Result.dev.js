@@ -14,7 +14,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var _require = require('../utils/constant'),
     CODE_ERROR = _require.CODE_ERROR,
-    CODE_SUCCESS = _require.CODE_SUCCESS;
+    CODE_SUCCESS = _require.CODE_SUCCESS,
+    CODE_TOKEN_EXPIRED = _require.CODE_TOKEN_EXPIRED;
 
 var Result =
 /*#__PURE__*/
@@ -81,6 +82,12 @@ function () {
     key: "fail",
     value: function fail(res) {
       this.code = CODE_ERROR;
+      this.json(res);
+    }
+  }, {
+    key: "jwtError",
+    value: function jwtError(res) {
+      this.code = CODE_TOKEN_EXPIRED;
       this.json(res);
     }
   }]);

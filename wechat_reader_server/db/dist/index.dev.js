@@ -44,6 +44,21 @@ function querySql(sql) {
   });
 }
 
+function queryOne(sql) {
+  return new Promise(function (resolve, reject) {
+    querySql(sql).then(function (results) {
+      if (results && results.length > 0) {
+        resolve(results[0]);
+      } else {
+        resolve(null);
+      }
+    })["catch"](function (err) {
+      reject(err);
+    });
+  });
+}
+
 module.exports = {
-  querySql: querySql
+  querySql: querySql,
+  queryOne: queryOne
 };
