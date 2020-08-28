@@ -6,6 +6,8 @@ var boom = require('boom');
 
 var userRouter = require('./user');
 
+var bookRouter = require('./book');
+
 var _require = require('../utils/constant'),
     CODE_ERROR = _require.CODE_ERROR;
 
@@ -22,6 +24,7 @@ router.get('/', function (req, res) {
 }); // 通过 userRouter 来处理 /user 路由，对路由处理进行解耦
 
 router.use('/user', userRouter);
+router.use('/book', bookRouter);
 /**
  * 集中处理404请求的中间件
  * 注意：该中间件必须放在正常处理流程之后

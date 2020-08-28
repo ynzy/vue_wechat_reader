@@ -13,7 +13,12 @@
           <Warning />
           <el-col :span="24">
             <!-- 编写具体表单控件 -->
-            <EbookUpload />
+            <EbookUpload
+              :fileList="fileList"
+              :disabled="isEdit"
+              @onSuccess="onUploadSuccess"
+              @onRemove="onUploadRemove"
+            />
           </el-col>
           <el-col :span="24">
             <!-- 编写具体表单控件 -->
@@ -37,7 +42,8 @@ export default {
     return {
       loading: false,
       rules: {},
-      postForm: {}
+      postForm: {},
+      fileList: []
     }
   },
   methods: {
@@ -49,6 +55,12 @@ export default {
       setTimeout(() => {
         this.loading = false
       }, 3000)
+    },
+    onUploadSuccess() {
+      console.log('onUploadSuccess')
+    },
+    onUploadRemove() {
+      console.log('onUploadRemove')
     }
   },
   mounted() {}
