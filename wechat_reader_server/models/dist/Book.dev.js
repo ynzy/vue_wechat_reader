@@ -1,5 +1,13 @@
 "use strict";
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -12,10 +20,14 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  */
 var fs = require('fs');
 
+var Epub = require('../utils/epub');
+
 var _require = require('../utils/constant'),
     MIME_TYPE_EPUB = _require.MIME_TYPE_EPUB,
     UPLOAD_URL = _require.UPLOAD_URL,
     UPLOAD_PATH = _require.UPLOAD_PATH;
+
+var xml2js = require('xml2js').parseString;
 
 var Book =
 /*#__PURE__*/
@@ -28,12 +40,13 @@ function () {
     } else {
       this.createBookFromData(data);
     }
-  }
+  } // 新增电子书
+
 
   _createClass(Book, [{
     key: "createBookFromFile",
     value: function createBookFromFile(file) {
-      console.log(file);
+      // console.log(file);
       var destination = file.destination,
           filename = file.filename,
           _file$mimetype = file.mimetype,
@@ -100,6 +113,187 @@ function () {
     key: "createBookFromData",
     value: function createBookFromData(data) {
       console.log(data);
+    } // 解析电子书路径
+
+  }, {
+    key: "parse",
+    value: function parse() {
+      var _this = this;
+
+      return new Promise(function (resolve, reject) {
+        var bookPath = "".concat(UPLOAD_PATH).concat(_this.filePath); // console.log(bookPath);
+
+        if (!fs.existsSync(bookPath)) {
+          reject(new Error('电子书不存在'));
+        }
+
+        var epub = new Epub(bookPath);
+        epub.on('error', function (err) {
+          reject(err);
+        });
+        epub.on('end', function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            // console.log(epub.manifest);
+            var _epub$metadata = epub.metadata,
+                language = _epub$metadata.language,
+                creator = _epub$metadata.creator,
+                creatorFileAs = _epub$metadata.creatorFileAs,
+                title = _epub$metadata.title,
+                cover = _epub$metadata.cover,
+                publisher = _epub$metadata.publisher;
+
+            if (!title) {
+              reject(new Error('图书标题为空'));
+            } else {
+              _this.title = title;
+              _this.language = language || 'en';
+              _this.author = creator || creatorFileAs || 'unknown';
+              _this.publisher = publisher || 'unknown';
+              _this.rootFile = epub.rootFile;
+
+              var handleGetImage = function handleGetImage(err, file, mimeType) {
+                if (err) {
+                  reject(err);
+                } else {
+                  var suffix = mimeType.split('/')[1];
+                  var coverPath = "".concat(UPLOAD_PATH, "/img/").concat(_this.fileName, ".").concat(suffix);
+                  var coverUrl = "".concat(UPLOAD_URL, "/img/").concat(_this.fileName, ".").concat(suffix);
+                  fs.writeFileSync(coverPath, file, 'binary');
+                  _this.coverPath = "/img/".concat(_this.fileName, ".").concat(suffix);
+                  _this.cover = coverUrl;
+                  resolve(_this);
+                }
+              };
+
+              try {
+                _this.unzip();
+
+                _this.parseContents(epub).then(function (_ref) {
+                  var chapters = _ref.chapters;
+                  // this.contents = chapters
+                  epub.getImage(cover, handleGetImage);
+                });
+              } catch (e) {
+                reject(e);
+              }
+            }
+          }
+        });
+        epub.parse();
+      });
+    } // 解压电子书
+
+  }, {
+    key: "unzip",
+    value: function unzip() {
+      var AdmZip = require('adm-zip');
+
+      var zip = new AdmZip(Book.genPath(this.path));
+      zip.extractAllTo(Book.genPath(this.unzipPath), true);
+    } // 解析目录
+
+  }, {
+    key: "parseContents",
+    value: function parseContents(epub) {
+      var _this2 = this;
+
+      // 获取目录文件
+      // D:/A_Personal/epub/admin-upload-ebook/unzip/e8cf03d70942d841ae9d0b0d93f69e20/OEBPS/toc.ncx
+      function getNcxFilePath() {
+        var spine = epub && epub.spine;
+        var manifest = epub && epub.manifest;
+        var ncx = spine.toc && spine.toc.href;
+        var id = spine.toc && spine.toc.id; // console.log('spine', ncx, manifest[id].href);
+
+        if (ncx) {
+          return ncx;
+        } else {
+          return manifest[id].href;
+        }
+      }
+
+      function findParent(array) {
+        return array.map(function (item) {
+          return item;
+        });
+      }
+
+      function flatten(array) {
+        var _ref2;
+
+        return (_ref2 = []).concat.apply(_ref2, _toConsumableArray(array.map(function (item) {
+          return item;
+        })));
+      }
+
+      var ncxFilePath = Book.genPath("".concat(this.unzipPath, "/").concat(getNcxFilePath())); // console.log(ncxFilePath);
+
+      if (fs.existsSync(ncxFilePath)) {
+        return new Promise(function (resolve, reject) {
+          var xml = fs.readFileSync(ncxFilePath, 'utf-8');
+          var fileName = _this2.fileName;
+          xml2js(xml, {
+            explicitArray: false,
+            ignoreAttrs: false
+          }, function (err, json) {
+            if (err) {
+              reject(err);
+            } else {
+              var navMap = json.ncx.navMap; // console.log(JSON.stringify(navMap));
+
+              if (navMap.navPoint && navMap.navPoint.length > 0) {
+                // 修改结构
+                navMap.navPoint = findParent(navMap.navPoint); // 数组扁平化
+
+                var newNavMap = flatten(navMap.navPoint);
+                var chapters = []; //目录信息
+
+                console.log(epub.flow);
+                epub.flow.forEach(function (chapter, index) {
+                  if (index + 1 > newNavMap.length) {
+                    return;
+                  }
+
+                  var nav = newNavMap[index];
+                  chapter.text = "".concat(UPLOAD_URL, "/unzip/").concat(fileName, "/").concat(chapter.href); // console.log(chapter.text);
+
+                  if (nav && nav.navLabel) {
+                    chapter.label = nav.navLabel.text || '';
+                  } else {
+                    chapter.label = '';
+                  }
+
+                  chapter.navId = nav['$'].id;
+                  chapter.fileName = fileName;
+                  chapter.order = index + 1;
+                  chapters.push(chapter);
+                });
+                console.log(chapters);
+              } else {
+                reject(new Error('目录解析失败，目录数为0'));
+              }
+            }
+          });
+          resolve({
+            chapters: 1
+          });
+        });
+      } else {
+        throw new Error('目录文件不存在');
+      }
+    } // 生成路径
+
+  }], [{
+    key: "genPath",
+    value: function genPath(path) {
+      // 如果没有/ 添加/
+      if (!path.startsWith('/')) {
+        path = "/".concat(path);
+      }
+
+      return "".concat(UPLOAD_PATH).concat(path);
     }
   }]);
 

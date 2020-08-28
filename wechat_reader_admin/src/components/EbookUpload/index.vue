@@ -13,7 +13,7 @@
       :on-exceed="onExceed"
       :disabled="disabled"
       drag
-      accept="application/epub+zip"
+      accept="application/epub+zip,application/epub"
       class="image-upload"
     >
       <i class="el-icon-upload" />

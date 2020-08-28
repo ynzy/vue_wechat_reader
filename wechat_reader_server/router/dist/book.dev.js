@@ -11,6 +11,8 @@ var Result = require('../models/Result');
 
 var Book = require('../models/Book');
 
+var boom = require('boom');
+
 var router = express.Router();
 /**
  * multer 
@@ -23,9 +25,15 @@ router.post('/upload', multer({
   if (!req.file || req.file.length === 0) {
     new Result('上传电子书失败').fail(res);
   } else {
-    var book = new Book(req.file);
-    console.log(book);
-    new Result('上传电子书成功').success(res);
+    var book = new Book(req.file); // console.log(book);
+
+    book.parse().then(function (book) {
+      // console.log('book:', book);
+      new Result('上传电子书成功').success(res);
+    })["catch"](function (err) {
+      console.log(err);
+      next(boom.badImplementation(err));
+    });
   }
 });
 module.exports = router;
