@@ -9,6 +9,8 @@ var _require = require('../utils/constant'),
 
 var Result = require('../models/Result');
 
+var Book = require('../models/Book');
+
 var router = express.Router();
 /**
  * multer 
@@ -21,6 +23,8 @@ router.post('/upload', multer({
   if (!req.file || req.file.length === 0) {
     new Result('上传电子书失败').fail(res);
   } else {
+    var book = new Book(req.file);
+    console.log(book);
     new Result('上传电子书成功').success(res);
   }
 });
