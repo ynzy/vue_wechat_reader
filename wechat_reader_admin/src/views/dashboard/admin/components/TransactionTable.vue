@@ -11,7 +11,7 @@
       </template>
     </el-table-column>
     <el-table-column label="Status" width="100" align="center">
-      <template slot-scope="{row}">
+      <template slot-scope="{ row }">
         <el-tag :type="row.status | statusFilter">
           {{ row.status }}
         </el-tag>
@@ -42,7 +42,7 @@ export default {
     }
   },
   created() {
-    this.fetchData()
+    // this.fetchData()
   },
   methods: {
     fetchData() {

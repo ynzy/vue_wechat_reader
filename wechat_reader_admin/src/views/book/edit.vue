@@ -1,7 +1,7 @@
-<!-- 上传图书 -->
+<!--  -->
 <template>
   <div>
-    <detail :is-edit="false" />
+    <detail :is-edit="true" />
   </div>
 </template>
 
