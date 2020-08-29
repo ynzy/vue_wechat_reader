@@ -70,7 +70,7 @@
                 </el-col>
                 <el-col :span="12">
                   <el-form-item :label-width="labelWidth" label="文件名称：">
-                    <el-input v-model="postForm.fileName" placeholder="文件名称" style="width: 100%" disabled />
+                    <el-input v-model="postForm.originalName" placeholder="文件名称" style="width: 100%" disabled />
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -88,7 +88,7 @@
                 <el-col :span="24">
                   <el-form-item :label-width="labelWidth" label="目录：">
                     <div v-if="postForm.contents && postForm.contents.length > 0" class="contents-wrapper">
-                      <el-tree :data="contentsTree" @node-click="onContentClick" />
+                      <!-- <el-tree :data="contentsTree" @node-click="onContentClick" /> -->
                     </div>
                     <span v-else>无</span>
                   </el-form-item>
@@ -131,8 +131,15 @@ export default {
         this.loading = false
       }, 3000)
     },
-    onUploadSuccess() {
+    setData(data) {
+      console.log(this.postForm)
+      this.postForm = Object.assign({}, this.postForm, data)
+      console.log(this.postForm)
+    },
+    onUploadSuccess(data) {
       console.log('onUploadSuccess')
+      // console.log(data)
+      this.setData(data)
     },
     onUploadRemove() {
       console.log('onUploadRemove')

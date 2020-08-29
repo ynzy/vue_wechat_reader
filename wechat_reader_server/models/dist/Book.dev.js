@@ -46,7 +46,7 @@ function () {
   _createClass(Book, [{
     key: "createBookFromFile",
     value: function createBookFromFile(file) {
-      // console.log(file);
+      console.log(file);
       var destination = file.destination,
           filename = file.filename,
           _file$mimetype = file.mimetype,
@@ -107,7 +107,7 @@ function () {
 
       this.unzipUrl = unzipUrl; // 解压后文件夹链接(阅读电子书需要)
 
-      this.originalname = originalname; // 电子书文件的原名
+      this.originalName = originalname; // 电子书文件的原名
     }
   }, {
     key: "createBookFromData",

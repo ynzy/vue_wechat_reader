@@ -29,9 +29,7 @@ router.post('/upload', multer({
 
     book.parse().then(function (book) {
       console.log('book:', book);
-      new Result({
-        book: book
-      }, '上传电子书成功').success(res);
+      new Result(book, '上传电子书成功').success(res);
     })["catch"](function (err) {
       console.log(err);
       next(boom.badImplementation(err));

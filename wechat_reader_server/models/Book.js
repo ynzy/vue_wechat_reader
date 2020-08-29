@@ -16,7 +16,7 @@ class Book {
   }
   // 新增电子书
   createBookFromFile(file) {
-    // console.log(file);
+    console.log(file);
     const {
       destination, filename, mimetype = MIME_TYPE_EPUB, path, originalname
     } = file
@@ -57,7 +57,7 @@ class Book {
     this.categoryText = '' // 分类名称
     this.language = '' // 语种
     this.unzipUrl = unzipUrl // 解压后文件夹链接(阅读电子书需要)
-    this.originalname = originalname // 电子书文件的原名
+    this.originalName = originalname // 电子书文件的原名
   }
 
   createBookFromData(data) {

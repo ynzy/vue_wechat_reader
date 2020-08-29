@@ -56,15 +56,15 @@ export default {
       this.$emit('beforeUpload', file)
     },
     onSuccess(res, file) {
-      console.log(res)
-      console.log(file)
-      const { code, msg } = res
+      // console.log(res)
+      // console.log(file)
+      const { code, msg, data } = res
       if (code == 0) {
         this.$message({
           message: msg,
           type: 'success'
         })
-        this.$emit('onSuccess', file)
+        this.$emit('onSuccess', data)
       } else {
         this.$message({
           message: (msg && `上传失败，失败原因：${msg}`) || '上传失败',
