@@ -13,8 +13,15 @@ var Book = require('../models/Book');
 
 var boom = require('boom');
 
+var _require2 = require('../utils/jwt'),
+    jwtDecoded = _require2.jwtDecoded;
+
+var _require3 = require('../services/book'),
+    insertBook = _require3.insertBook;
+
 var router = express.Router();
 /**
+ * 上传图书
  * multer 
  * 用于处理 multipart/form-data 类型的表单数据
  */
@@ -35,5 +42,24 @@ router.post('/upload', multer({
       next(boom.badImplementation(err));
     });
   }
+});
+/**
+ * 新增图书
+ */
+
+router.post('/create', function (req, res, next) {
+  var decode = jwtDecoded(req);
+
+  if (decode && decode.username) {
+    req.body.username = decode.username;
+  }
+
+  var book = new Book(null, req.body);
+  insertBook(book).then(function (result) {
+    new Result('添加电子书成功').success(res);
+  })["catch"](function (err) {
+    console.log(err);
+    next(boom.badImplementation(err));
+  });
 });
 module.exports = router;

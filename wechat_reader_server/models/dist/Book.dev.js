@@ -27,7 +27,8 @@ var Epub = require('../utils/epub');
 var _require = require('../utils/constant'),
     MIME_TYPE_EPUB = _require.MIME_TYPE_EPUB,
     UPLOAD_URL = _require.UPLOAD_URL,
-    UPLOAD_PATH = _require.UPLOAD_PATH;
+    UPLOAD_PATH = _require.UPLOAD_PATH,
+    UPDATE_TYPE_FROM_WEB = _require.UPDATE_TYPE_FROM_WEB;
 
 var xml2js = require('xml2js').parseString;
 
@@ -48,7 +49,7 @@ function () {
   _createClass(Book, [{
     key: "createBookFromFile",
     value: function createBookFromFile(file) {
-      console.log(file);
+      // console.log(file);
       var destination = file.destination,
           filename = file.filename,
           _file$mimetype = file.mimetype,
@@ -114,7 +115,27 @@ function () {
   }, {
     key: "createBookFromData",
     value: function createBookFromData(data) {
-      console.log(data);
+      // console.log(data);
+      this.fileName = data.fileName;
+      this.cover = data.coverPath;
+      this.title = data.title;
+      this.author = data.author;
+      this.publisher = data.publisher;
+      this.bookId = data.fileName;
+      this.language = data.language;
+      this.rootFile = data.rootFile;
+      this.originalName = data.originalName;
+      this.path = data.path || data.filePath;
+      this.filePath = data.path || data.filePath;
+      this.unzipPath = data.unzipPath;
+      this.coverPath = data.coverPath;
+      this.createUser = data.username;
+      this.createDt = new Date().getTime();
+      this.updateDt = new Date().getTime();
+      this.updateType = data.updateType === 0 ? data.updateType : UPDATE_TYPE_FROM_WEB; // this.contents = data.contents
+
+      this.category = data.category || 99;
+      this.categoryText = data.categoryText || '自定义';
     } // 解析电子书路径
 
   }, {
@@ -261,8 +282,8 @@ function () {
           // dir D:/A_Personal/epub/admin-upload-ebook/unzip/528d54275940d8ff8b420b1685a2a8de/OEBPS
           // dir /epub/admin-upload-ebook/unzip/420d0ea28c955e655982ec729e4ea482/OEBPS
 
-          var dir = path.dirname(ncxFilePath).replace(UPLOAD_PATH, '');
-          console.log('dir', dir);
+          var dir = path.dirname(ncxFilePath).replace(UPLOAD_PATH, ''); // console.log('dir', dir);
+
           var fileName = _this2.fileName;
           xml2js(xml, {
             explicitArray: false,
@@ -306,8 +327,8 @@ function () {
                     });
                     parent.children.push(c);
                   }
-                });
-                console.log(chapterTree);
+                }); // console.log(chapterTree);
+
                 resolve({
                   chapters: chapters,
                   chapterTree: chapterTree
@@ -321,6 +342,29 @@ function () {
       } else {
         throw new Error('目录文件不存在');
       }
+    } // 将book对象中与数据库相关的数据提取出来，供使用
+
+  }, {
+    key: "toDb",
+    value: function toDb() {
+      return {
+        fileName: this.fileName,
+        cover: this.coverPath,
+        title: this.title,
+        author: this.author,
+        publisher: this.publisher,
+        bookId: this.fileName,
+        language: this.language,
+        rootFile: this.rootFile,
+        originalName: this.originalName,
+        filePath: this.filePath,
+        unzipPath: this.unzipPath,
+        coverPath: this.coverPath,
+        createUser: this.username,
+        createDt: this.createDt,
+        updateDt: this.updateDt,
+        updateType: this.updateType
+      };
     } // 生成路径
 
   }], [{

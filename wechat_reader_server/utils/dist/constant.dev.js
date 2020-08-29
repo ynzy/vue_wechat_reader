@@ -18,7 +18,8 @@ module.exports = {
   // MIME_TYPE_EPUB: 'application/epub+zip'
   MIME_TYPE_EPUB: 'application/epub',
   // 上传电子书类型
-  UPLOAD_URL: UPLOAD_URL
+  UPLOAD_URL: UPLOAD_URL,
+  UPDATE_TYPE_FROM_WEB: 1
 }; // let reg = /^application\/epub\+zip|application\/epub$/
 // let t = 'application/epub'
 // let t = 'application/epub'

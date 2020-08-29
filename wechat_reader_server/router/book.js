@@ -5,10 +5,13 @@ const { UPLOAD_PATH } = require('../utils/constant')
 const Result = require('../models/Result')
 const Book = require('../models/Book')
 const boom = require('boom')
+const { jwtDecoded } = require('../utils/jwt')
+const { insertBook } = require('../services/book')
 
 const router = express.Router()
 
 /**
+ * 上传图书
  * multer 
  * 用于处理 multipart/form-data 类型的表单数据
  */
@@ -28,5 +31,24 @@ router.post('/upload', multer({ dest: `${UPLOAD_PATH}/book` }).single('file'),
       })
     }
   })
+
+/**
+ * 新增图书
+ */
+
+router.post('/create', function (req, res, next) {
+  const decode = jwtDecoded(req)
+  if (decode && decode.username) {
+    req.body.username = decode.username
+  }
+  const book = new Book(null, req.body)
+  insertBook(book).then(result => {
+    new Result('添加电子书成功').success(res)
+  }).catch(err => {
+    console.log(err);
+    next(boom.badImplementation(err))
+  })
+
+})
 
 module.exports = router
