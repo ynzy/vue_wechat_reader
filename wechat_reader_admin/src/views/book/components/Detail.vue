@@ -28,19 +28,19 @@
             <div>
               <el-row>
                 <el-col :span="12" class="form-item-author">
-                  <el-form-item :label-width="labelWidth" label="作者：">
+                  <el-form-item :label-width="labelWidth" label="作者：" prop="author">
                     <el-input v-model="postForm.author" placeholder="作者" style="width: 100%" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                  <el-form-item :label-width="labelWidth" label="出版社：">
+                  <el-form-item :label-width="labelWidth" label="出版社：" prop="publisher">
                     <el-input v-model="postForm.publisher" placeholder="出版社" style="width: 100%" />
                   </el-form-item>
                 </el-col>
               </el-row>
               <el-row>
                 <el-col :span="12">
-                  <el-form-item :label-width="labelWidth" label="语言：">
+                  <el-form-item :label-width="labelWidth" label="语言：" prop="language">
                     <el-input v-model="postForm.language" placeholder="语言" style="width: 100%" />
                   </el-form-item>
                 </el-col>
@@ -107,16 +107,53 @@ import Sticky from '../../../components/Sticky/index'
 import EbookUpload from '../../../components/EbookUpload/index'
 import MDinput from '../../../components/MDinput/index'
 import Warning from './Warning'
+const defaultForm = {
+  title: '', // 书名
+  author: '', // 作者
+  publisher: '', // 出版社
+  language: '', // 语种
+  rootFile: '', // 根文件路径
+  cover: '', // 封面图片URL
+  coverPath: '', // 封面图片路径
+  fileName: '', // 文件名
+  originalName: '', // 文件原始名称
+  filePath: '', // 文件所在路径
+  unzipPath: '', // 解压文件所在路径
+  contents: [] // 目录
+}
+const fields = {
+  title: '书名',
+  author: '作者',
+  publisher: '出版社',
+  language: '语种'
+}
 export default {
   components: { Sticky, Warning, EbookUpload, MDinput },
   props: {
     isEdit: Boolean
   },
   data() {
+    const validateRequire = (rule, value, callback) => {
+      // console.log(rule)
+      if (value === '') {
+        this.$message({
+          message: fields[rule.field] + '为必传项',
+          type: 'error'
+        })
+        callback(new Error(fields[rule.field] + '为必传项'))
+      } else {
+        callback()
+      }
+    }
     return {
       loading: false,
-      rules: {},
-      postForm: {},
+      rules: {
+        title: [{ validator: validateRequire }],
+        author: [{ validator: validateRequire }],
+        publisher: [{ validator: validateRequire }],
+        language: [{ validator: validateRequire }]
+      },
+      postForm: Object.assign({}, defaultForm),
       fileList: [],
       contentsTree: [],
       labelWidth: '120px'
@@ -127,15 +164,25 @@ export default {
       console.log('shou guide')
     },
     submitForm() {
+      if (this.loading) return
       this.loading = true
-      setTimeout(() => {
-        this.loading = false
-      }, 3000)
+      this.$refs['postForm'].validate((valid, fields) => {
+        console.log(valid, fields)
+        console.log(Object.keys(fields)[0])
+        if (!valid) {
+          this.$message.error(fields[Object.keys(fields)[0]][0].message)
+          this.loading = false
+        }
+      })
     },
     setData(data) {
       this.postForm = Object.assign({}, this.postForm, data)
       console.log(data)
       this.contentsTree = data.contentsTree
+    },
+    setDefatult() {
+      this.postForm = Object.assign({}, defaultForm)
+      this.contentsTree = []
     },
     onUploadSuccess(data) {
       console.log('onUploadSuccess')
@@ -144,6 +191,7 @@ export default {
     },
     onUploadRemove() {
       console.log('onUploadRemove')
+      this.setDefatult()
     },
     onContentClick(data) {
       console.log(data)
