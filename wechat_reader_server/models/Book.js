@@ -3,6 +3,7 @@
  * data 电子书数据（编辑）
  */
 const fs = require('fs')
+const path = require('path')
 const Epub = require('../utils/epub')
 const { MIME_TYPE_EPUB, UPLOAD_URL, UPLOAD_PATH } = require('../utils/constant')
 const xml2js = require('xml2js').parseString
@@ -174,6 +175,11 @@ class Book {
     if (fs.existsSync(ncxFilePath)) {
       return new Promise((resolve, reject) => {
         const xml = fs.readFileSync(ncxFilePath, 'utf-8')
+        // 路径有相对路径和绝对路径，替换掉绝对路径，都改成相对路径
+        // dir D:/A_Personal/epub/admin-upload-ebook/unzip/528d54275940d8ff8b420b1685a2a8de/OEBPS
+        // dir /epub/admin-upload-ebook/unzip/420d0ea28c955e655982ec729e4ea482/OEBPS
+        const dir = path.dirname(ncxFilePath).replace(UPLOAD_PATH, '')
+        console.log('dir', dir);
         const fileName = this.fileName
         xml2js(xml, {
           explicitArray: false,
@@ -193,21 +199,12 @@ class Book {
                 const newNavMap = flatten(navMap.navPoint)
                 const chapters = [] //目录信息
                 // console.log(epub.flow);
-                epub.flow.forEach((chapter, index) => {
-                  if (index + 1 > newNavMap.length) {
-                    return
-                  }
-                  const nav = newNavMap[index]
-                  chapter.text = `${UPLOAD_URL}/unzip/${fileName}/${chapter.href}`
+                newNavMap.forEach((chapter, index) => {
+                  const src = chapter.content['$'].src
+                  chapter.text = `${UPLOAD_URL}${dir}/${src}`
                   // console.log(chapter.text);
-                  if (nav && nav.navLabel) {
-                    chapter.label = nav.navLabel.text || ''
-                  } else {
-                    chapter.label = ''
-                  }
-                  chapter.level = nav.level
-                  chapter.pid = nav.pid
-                  chapter.navId = nav['$'].id
+                  chapter.label = chapter.navLabel.text || ''
+                  chapter.navId = chapter['$'].id
                   chapter.fileName = fileName
                   chapter.order = index + 1
                   // console.log(chapter);

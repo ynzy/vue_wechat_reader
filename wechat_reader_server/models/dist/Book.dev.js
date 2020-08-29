@@ -20,6 +20,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  */
 var fs = require('fs');
 
+var path = require('path');
+
 var Epub = require('../utils/epub');
 
 var _require = require('../utils/constant'),
@@ -255,7 +257,12 @@ function () {
 
       if (fs.existsSync(ncxFilePath)) {
         return new Promise(function (resolve, reject) {
-          var xml = fs.readFileSync(ncxFilePath, 'utf-8');
+          var xml = fs.readFileSync(ncxFilePath, 'utf-8'); // 路径有相对路径和绝对路径，替换掉绝对路径，都改成相对路径
+          // dir D:/A_Personal/epub/admin-upload-ebook/unzip/528d54275940d8ff8b420b1685a2a8de/OEBPS
+          // dir /epub/admin-upload-ebook/unzip/420d0ea28c955e655982ec729e4ea482/OEBPS
+
+          var dir = path.dirname(ncxFilePath).replace(UPLOAD_PATH, '');
+          console.log('dir', dir);
           var fileName = _this2.fileName;
           xml2js(xml, {
             explicitArray: false,
@@ -275,23 +282,12 @@ function () {
                 var chapters = []; //目录信息
                 // console.log(epub.flow);
 
-                epub.flow.forEach(function (chapter, index) {
-                  if (index + 1 > newNavMap.length) {
-                    return;
-                  }
+                newNavMap.forEach(function (chapter, index) {
+                  var src = chapter.content['$'].src;
+                  chapter.text = "".concat(UPLOAD_URL).concat(dir, "/").concat(src); // console.log(chapter.text);
 
-                  var nav = newNavMap[index];
-                  chapter.text = "".concat(UPLOAD_URL, "/unzip/").concat(fileName, "/").concat(chapter.href); // console.log(chapter.text);
-
-                  if (nav && nav.navLabel) {
-                    chapter.label = nav.navLabel.text || '';
-                  } else {
-                    chapter.label = '';
-                  }
-
-                  chapter.level = nav.level;
-                  chapter.pid = nav.pid;
-                  chapter.navId = nav['$'].id;
+                  chapter.label = chapter.navLabel.text || '';
+                  chapter.navId = chapter['$'].id;
                   chapter.fileName = fileName;
                   chapter.order = index + 1; // console.log(chapter);
 
