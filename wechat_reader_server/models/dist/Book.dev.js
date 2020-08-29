@@ -171,9 +171,11 @@ function () {
                 _this.unzip();
 
                 _this.parseContents(epub).then(function (_ref) {
-                  var chapters = _ref.chapters;
+                  var chapters = _ref.chapters,
+                      chapterTree = _ref.chapterTree;
                   // console.log(chapters);
                   _this.contents = chapters;
+                  _this.contentsTree = chapterTree;
                   epub.getImage(cover, handleGetImage);
                 });
               } catch (e) {
@@ -294,10 +296,25 @@ function () {
                   chapter.order = index + 1; // console.log(chapter);
 
                   chapters.push(chapter);
-                }); // console.log(chapters);
+                });
+                var chapterTree = []; // console.log(chapters);
 
+                chapters.forEach(function (c) {
+                  c.children = []; // 一级目录
+
+                  if (c.pid === '') {
+                    chapterTree.push(c);
+                  } else {
+                    var parent = chapters.find(function (_) {
+                      return _.navId === c.pid;
+                    });
+                    parent.children.push(c);
+                  }
+                });
+                console.log(chapterTree);
                 resolve({
-                  chapters: chapters
+                  chapters: chapters,
+                  chapterTree: chapterTree
                 });
               } else {
                 reject(new Error('目录解析失败，目录数为0'));

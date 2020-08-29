@@ -105,9 +105,10 @@ class Book {
             }
             try {
               this.unzip()
-              this.parseContents(epub).then(({ chapters }) => {
+              this.parseContents(epub).then(({ chapters, chapterTree }) => {
                 // console.log(chapters);
                 this.contents = chapters
+                this.contentsTree = chapterTree
                 epub.getImage(cover, handleGetImage)
               })
             } catch (e) {
@@ -212,8 +213,20 @@ class Book {
                   // console.log(chapter);
                   chapters.push(chapter)
                 })
+                const chapterTree = []
                 // console.log(chapters);
-                resolve({ chapters })
+                chapters.forEach(c => {
+                  c.children = []
+                  // 一级目录
+                  if (c.pid === '') {
+                    chapterTree.push(c)
+                  } else {
+                    const parent = chapters.find(_ => _.navId === c.pid)
+                    parent.children.push(c)
+                  }
+                })
+                console.log(chapterTree);
+                resolve({ chapters, chapterTree })
               } else {
                 reject(new Error('目录解析失败，目录数为0'))
               }

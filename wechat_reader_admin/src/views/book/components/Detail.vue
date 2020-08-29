@@ -88,7 +88,7 @@
                 <el-col :span="24">
                   <el-form-item :label-width="labelWidth" label="目录：">
                     <div v-if="postForm.contents && postForm.contents.length > 0" class="contents-wrapper">
-                      <!-- <el-tree :data="contentsTree" @node-click="onContentClick" /> -->
+                      <el-tree :data="contentsTree" @node-click="onContentClick" />
                     </div>
                     <span v-else>无</span>
                   </el-form-item>
@@ -118,6 +118,7 @@ export default {
       rules: {},
       postForm: {},
       fileList: [],
+      contentsTree: [],
       labelWidth: '120px'
     }
   },
@@ -132,9 +133,9 @@ export default {
       }, 3000)
     },
     setData(data) {
-      console.log(this.postForm)
       this.postForm = Object.assign({}, this.postForm, data)
-      console.log(this.postForm)
+      console.log(data)
+      this.contentsTree = data.contentsTree
     },
     onUploadSuccess(data) {
       console.log('onUploadSuccess')
@@ -143,6 +144,13 @@ export default {
     },
     onUploadRemove() {
       console.log('onUploadRemove')
+    },
+    onContentClick(data) {
+      console.log(data)
+      const { text } = data
+      if (text) {
+        window.open(text)
+      }
     }
   },
   mounted() {}

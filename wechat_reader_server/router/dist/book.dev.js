@@ -28,7 +28,7 @@ router.post('/upload', multer({
     var book = new Book(req.file); // console.log(book);
 
     book.parse().then(function (book) {
-      console.log('book:', book);
+      // console.log('book:', book);
       new Result(book, '上传电子书成功').success(res);
     })["catch"](function (err) {
       console.log(err);
