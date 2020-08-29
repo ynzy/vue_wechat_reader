@@ -60,9 +60,9 @@ function () {
 
       if (this.options) {
         base = _objectSpread({}, base, {}, this.options);
-      }
+      } // console.log(base)
 
-      console.log(base);
+
       return base;
     }
   }, {

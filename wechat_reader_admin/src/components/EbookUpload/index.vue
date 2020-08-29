@@ -52,11 +52,12 @@ export default {
   },
   methods: {
     beforeUpload(file) {
-      console.log(file)
+      // console.log(file)
       this.$emit('beforeUpload', file)
     },
     onSuccess(res, file) {
-      console.log(res, file)
+      console.log(res)
+      console.log(file)
       const { code, msg } = res
       if (code == 0) {
         this.$message({

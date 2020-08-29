@@ -105,9 +105,9 @@ class Book {
             }
             try {
               this.unzip()
-
               this.parseContents(epub).then(({ chapters }) => {
-                // this.contents = chapters
+                // console.log(chapters);
+                this.contents = chapters
                 epub.getImage(cover, handleGetImage)
               })
             } catch (e) {
@@ -142,14 +142,29 @@ class Book {
       }
     }
 
-    function findParent(array) {
+    function findParent(array, level = 0, pid = '') {
       return array.map(item => {
+        item.level = level
+        item.pid = pid
+        // 包含子目录
+        if (item.navPoint && item.navPoint.length > 0) {
+          item.navPoint = findParent(item.navPoint, level + 1, item['$'].id)
+          // 如果navPoint是个对象
+        } else if (item.navPoint) {
+          item.navPoint.level = level + 1
+          item.navPoint.pid = item['$'].id
+        }
         return item
       })
     }
 
     function flatten(array) {
       return [].concat(...array.map(item => {
+        if (item.navPoint && item.navPoint.length > 0) {
+          return [].concat(item, ...flatten(item.navPoint))
+        } else if (item.navPoint) {
+          return [].concat(item, item.navPoint)
+        }
         return item
       }))
     }
@@ -169,13 +184,14 @@ class Book {
             } else {
               const navMap = json.ncx.navMap
               // console.log(JSON.stringify(navMap));
+              // console.log('xml', navMap);
               if (navMap.navPoint && navMap.navPoint.length > 0) {
                 // 修改结构
                 navMap.navPoint = findParent(navMap.navPoint)
                 // 数组扁平化
                 const newNavMap = flatten(navMap.navPoint)
                 const chapters = [] //目录信息
-                console.log(epub.flow);
+                // console.log(epub.flow);
                 epub.flow.forEach((chapter, index) => {
                   if (index + 1 > newNavMap.length) {
                     return
@@ -188,19 +204,22 @@ class Book {
                   } else {
                     chapter.label = ''
                   }
+                  chapter.level = nav.level
+                  chapter.pid = nav.pid
                   chapter.navId = nav['$'].id
                   chapter.fileName = fileName
                   chapter.order = index + 1
+                  // console.log(chapter);
                   chapters.push(chapter)
                 })
-                console.log(chapters);
+                // console.log(chapters);
+                resolve({ chapters })
               } else {
                 reject(new Error('目录解析失败，目录数为0'))
               }
             }
           })
 
-        resolve({ chapters: 1 })
       })
     } else {
       throw new Error('目录文件不存在')

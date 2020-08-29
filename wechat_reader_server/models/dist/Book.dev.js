@@ -172,7 +172,8 @@ function () {
 
                 _this.parseContents(epub).then(function (_ref) {
                   var chapters = _ref.chapters;
-                  // this.contents = chapters
+                  // console.log(chapters);
+                  _this.contents = chapters;
                   epub.getImage(cover, handleGetImage);
                 });
               } catch (e) {
@@ -215,7 +216,19 @@ function () {
       }
 
       function findParent(array) {
+        var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var pid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
         return array.map(function (item) {
+          item.level = level;
+          item.pid = pid; // 包含子目录
+
+          if (item.navPoint && item.navPoint.length > 0) {
+            item.navPoint = findParent(item.navPoint, level + 1, item['$'].id); // 如果navPoint是个对象
+          } else if (item.navPoint) {
+            item.navPoint.level = level + 1;
+            item.navPoint.pid = item['$'].id;
+          }
+
           return item;
         });
       }
@@ -224,6 +237,14 @@ function () {
         var _ref2;
 
         return (_ref2 = []).concat.apply(_ref2, _toConsumableArray(array.map(function (item) {
+          if (item.navPoint && item.navPoint.length > 0) {
+            var _ref3;
+
+            return (_ref3 = []).concat.apply(_ref3, [item].concat(_toConsumableArray(flatten(item.navPoint))));
+          } else if (item.navPoint) {
+            return [].concat(item, item.navPoint);
+          }
+
           return item;
         })));
       }
@@ -242,6 +263,7 @@ function () {
               reject(err);
             } else {
               var navMap = json.ncx.navMap; // console.log(JSON.stringify(navMap));
+              // console.log('xml', navMap);
 
               if (navMap.navPoint && navMap.navPoint.length > 0) {
                 // 修改结构
@@ -249,8 +271,8 @@ function () {
 
                 var newNavMap = flatten(navMap.navPoint);
                 var chapters = []; //目录信息
+                // console.log(epub.flow);
 
-                console.log(epub.flow);
                 epub.flow.forEach(function (chapter, index) {
                   if (index + 1 > newNavMap.length) {
                     return;
@@ -265,19 +287,22 @@ function () {
                     chapter.label = '';
                   }
 
+                  chapter.level = nav.level;
+                  chapter.pid = nav.pid;
                   chapter.navId = nav['$'].id;
                   chapter.fileName = fileName;
-                  chapter.order = index + 1;
+                  chapter.order = index + 1; // console.log(chapter);
+
                   chapters.push(chapter);
+                }); // console.log(chapters);
+
+                resolve({
+                  chapters: chapters
                 });
-                console.log(chapters);
               } else {
                 reject(new Error('目录解析失败，目录数为0'));
               }
             }
-          });
-          resolve({
-            chapters: 1
           });
         });
       } else {
