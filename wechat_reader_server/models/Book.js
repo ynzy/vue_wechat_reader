@@ -5,7 +5,7 @@
 const fs = require('fs')
 const path = require('path')
 const Epub = require('../utils/epub')
-const { MIME_TYPE_EPUB, UPLOAD_URL, UPLOAD_PATH, UPDATE_TYPE_FROM_WEB } = require('../utils/constant')
+const { MIME_TYPE_EPUB, UPLOAD_URL, UPLOAD_PATH, UPDATE_TYPE_FROM_WEB, OLD_UPLOAD_URL } = require('../utils/constant')
 const xml2js = require('xml2js').parseString
 class Book {
   constructor(file, data) {
@@ -162,7 +162,7 @@ class Book {
         return manifest[id].href
       }
     }
-
+    // 查找父级对象
     function findParent(array, level = 0, pid = '') {
       return array.map(item => {
         item.level = level
@@ -178,7 +178,7 @@ class Book {
         return item
       })
     }
-
+    // 展开多级数组
     function flatten(array) {
       return [].concat(...array.map(item => {
         if (item.navPoint && item.navPoint.length > 0) {
@@ -232,9 +232,10 @@ class Book {
                   // console.log(chapter);
                   chapters.push(chapter)
                 })
-                const chapterTree = []
+
+                const chapterTree = Book.genContentsTree(chapters)
                 // console.log(chapters);
-                chapters.forEach(c => {
+                /* chapters.forEach(c => {
                   c.children = []
                   // 一级目录
                   if (c.pid === '') {
@@ -243,7 +244,7 @@ class Book {
                     const parent = chapters.find(_ => _.navId === c.pid)
                     parent.children.push(c)
                   }
-                })
+                }) */
                 // console.log(chapterTree);
                 resolve({ chapters, chapterTree })
               } else {
@@ -279,8 +280,22 @@ class Book {
       updateType: this.updateType,
     }
   }
+  // 获取电子书目录
   getContents() {
     return this.contents
+  }
+  // 删除电子书文件
+  reset() {
+    if (Book.pathExists(this.filePath)) {
+      fs.unlinkSync(Book.genPath(this.filePath))
+    }
+    if (Book.pathExists(this.coverPath)) {
+      fs.unlinkSync(Book.genPath(this.coverPath))
+    }
+    if (Book.pathExists(this.unzipPath)) {
+      //! 低版本 node 中 recursive不支持
+      fs.rmdirSync(Book.genPath(this.unzipPath), { recursive: true })
+    }
   }
   // 生成路径
   static genPath(path) {
@@ -289,6 +304,51 @@ class Book {
       path = `/${path}`
     }
     return `${UPLOAD_PATH}${path}`
+  }
+  // 判断路径是否存在
+  static pathExists(path) {
+    if (path.startsWith(UPLOAD_PATH)) {
+      return fs.existsSync(path)
+    } else {
+      return fs.existsSync(Book.genPath(path))
+    }
+  }
+  // 获取图书路径
+  static genCoverUrl(book) {
+    const { cover } = book
+    // 新的电子书
+    if (+book.updateType === 0) {
+      if (!cover) return null;
+      if (cover.startsWith('/')) {
+        return `${OLD_UPLOAD_URL}${cover}`
+      } else {
+        return `${OLD_UPLOAD_URL}/${cover}`
+      }
+      // 老电子书
+    } else {
+      if (!cover) return null;
+      if (cover.startsWith('/')) {
+        return `${UPLOAD_URL}${cover}`
+      } else {
+        return `${UPLOAD_URL}/${cover}`
+      }
+    }
+  }
+  // 生成目录树
+  static genContentsTree(contents) {
+    if (!contents) return null
+    const contentsTree = []
+    contents.forEach(c => {
+      c.children = []
+      // 一级目录
+      if (c.pid === '') {
+        contentsTree.push(c)
+      } else {
+        const parent = contents.find(_ => _.navId === c.pid)
+        parent.children.push(c)
+      }
+    })
+    return contentsTree
   }
 }
 

@@ -6,7 +6,7 @@ const Result = require('../models/Result')
 const Book = require('../models/Book')
 const boom = require('boom')
 const { jwtDecoded } = require('../utils/jwt')
-const { insertBook } = require('../services/book')
+const { insertBook, getBook } = require('../services/book')
 
 const router = express.Router()
 
@@ -49,6 +49,19 @@ router.post('/create', function (req, res, next) {
     next(boom.badImplementation(err))
   })
 
+})
+
+router.get('/get', function (req, res, next) {
+  const { fileName } = req.query
+  if (!fileName) {
+    next(boom.badRequest(new Error('参数fileName不能为空')))
+  } else {
+    getBook(fileName).then(book => {
+      new Result(book, '获取图书信息成功').success(res)
+    }).catch(err => {
+      next(boom.badImplementation(err))
+    })
+  }
 })
 
 module.exports = router

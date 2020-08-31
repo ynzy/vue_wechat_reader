@@ -10,3 +10,13 @@ export function createBook({ ...data }) {
     data
   })
 }
+/**
+ * 获取图书详情
+ */
+export function getBook({ ...params }) {
+  return request({
+    url: '/book/get',
+    method: 'get',
+    params
+  })
+}

@@ -4,6 +4,7 @@ var _require = require('./env'),
     env = _require.env;
 
 var UPLOAD_PATH = env === 'dev' ? 'D:/A_Personal/epub/admin-upload-ebook' : '/root/upload/admin-upload/ebook';
+var OLD_UPLOAD_URL = env === 'dev' ? 'https://yunyoushe.xyz/book/res/img' : 'https://www.yunyoushe.xyz/book/res/img';
 var UPLOAD_URL = env === 'dev' ? 'https://yunyoushe.xyz/admin-upload-ebook' : 'https://www.yunyoushe.xyz/admin-upload-ebook';
 module.exports = {
   CODE_ERROR: -1,
@@ -18,6 +19,7 @@ module.exports = {
   // MIME_TYPE_EPUB: 'application/epub+zip'
   MIME_TYPE_EPUB: 'application/epub',
   // 上传电子书类型
+  OLD_UPLOAD_URL: OLD_UPLOAD_URL,
   UPLOAD_URL: UPLOAD_URL,
   UPDATE_TYPE_FROM_WEB: 1
 }; // let reg = /^application\/epub\+zip|application\/epub$/

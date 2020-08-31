@@ -28,7 +28,8 @@ var _require = require('../utils/constant'),
     MIME_TYPE_EPUB = _require.MIME_TYPE_EPUB,
     UPLOAD_URL = _require.UPLOAD_URL,
     UPLOAD_PATH = _require.UPLOAD_PATH,
-    UPDATE_TYPE_FROM_WEB = _require.UPDATE_TYPE_FROM_WEB;
+    UPDATE_TYPE_FROM_WEB = _require.UPDATE_TYPE_FROM_WEB,
+    OLD_UPLOAD_URL = _require.OLD_UPLOAD_URL;
 
 var xml2js = require('xml2js').parseString;
 
@@ -238,7 +239,8 @@ function () {
         } else {
           return manifest[id].href;
         }
-      }
+      } // 查找父级对象
+
 
       function findParent(array) {
         var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -256,7 +258,8 @@ function () {
 
           return item;
         });
-      }
+      } // 展开多级数组
+
 
       function flatten(array) {
         var _ref2;
@@ -317,20 +320,19 @@ function () {
 
                   chapters.push(chapter);
                 });
-                var chapterTree = []; // console.log(chapters);
+                var chapterTree = Book.genContentsTree(chapters); // console.log(chapters);
 
-                chapters.forEach(function (c) {
-                  c.children = []; // 一级目录
-
+                /* chapters.forEach(c => {
+                  c.children = []
+                  // 一级目录
                   if (c.pid === '') {
-                    chapterTree.push(c);
+                    chapterTree.push(c)
                   } else {
-                    var parent = chapters.find(function (_) {
-                      return _.navId === c.pid;
-                    });
-                    parent.children.push(c);
+                    const parent = chapters.find(_ => _.navId === c.pid)
+                    parent.children.push(c)
                   }
-                }); // console.log(chapterTree);
+                }) */
+                // console.log(chapterTree);
 
                 resolve({
                   chapters: chapters,
@@ -368,11 +370,31 @@ function () {
         updateDt: this.updateDt,
         updateType: this.updateType
       };
-    }
+    } // 获取电子书目录
+
   }, {
     key: "getContents",
     value: function getContents() {
       return this.contents;
+    } // 删除电子书文件
+
+  }, {
+    key: "reset",
+    value: function reset() {
+      if (Book.pathExists(this.filePath)) {
+        fs.unlinkSync(Book.genPath(this.filePath));
+      }
+
+      if (Book.pathExists(this.coverPath)) {
+        fs.unlinkSync(Book.genPath(this.coverPath));
+      }
+
+      if (Book.pathExists(this.unzipPath)) {
+        //! 低版本 node 中 recursive不支持
+        fs.rmdirSync(Book.genPath(this.unzipPath), {
+          recursive: true
+        });
+      }
     } // 生成路径
 
   }], [{
@@ -384,6 +406,61 @@ function () {
       }
 
       return "".concat(UPLOAD_PATH).concat(path);
+    } // 判断路径是否存在
+
+  }, {
+    key: "pathExists",
+    value: function pathExists(path) {
+      if (path.startsWith(UPLOAD_PATH)) {
+        return fs.existsSync(path);
+      } else {
+        return fs.existsSync(Book.genPath(path));
+      }
+    } // 获取图书路径
+
+  }, {
+    key: "genCoverUrl",
+    value: function genCoverUrl(book) {
+      var cover = book.cover; // 新的电子书
+
+      if (+book.updateType === 0) {
+        if (!cover) return null;
+
+        if (cover.startsWith('/')) {
+          return "".concat(OLD_UPLOAD_URL).concat(cover);
+        } else {
+          return "".concat(OLD_UPLOAD_URL, "/").concat(cover);
+        } // 老电子书
+
+      } else {
+        if (!cover) return null;
+
+        if (cover.startsWith('/')) {
+          return "".concat(UPLOAD_URL).concat(cover);
+        } else {
+          return "".concat(UPLOAD_URL, "/").concat(cover);
+        }
+      }
+    } // 生成目录树
+
+  }, {
+    key: "genContentsTree",
+    value: function genContentsTree(contents) {
+      if (!contents) return null;
+      var contentsTree = [];
+      contents.forEach(function (c) {
+        c.children = []; // 一级目录
+
+        if (c.pid === '') {
+          contentsTree.push(c);
+        } else {
+          var parent = contents.find(function (_) {
+            return _.navId === c.pid;
+          });
+          parent.children.push(c);
+        }
+      });
+      return contentsTree;
     }
   }]);
 

@@ -1,5 +1,6 @@
 const { env } = require('./env')
 const UPLOAD_PATH = env === 'dev' ? 'D:/A_Personal/epub/admin-upload-ebook' : '/root/upload/admin-upload/ebook'
+const OLD_UPLOAD_URL = env === 'dev' ? 'https://yunyoushe.xyz/book/res/img' : 'https://www.yunyoushe.xyz/book/res/img'
 const UPLOAD_URL = env === 'dev' ? 'https://yunyoushe.xyz/admin-upload-ebook' : 'https://www.yunyoushe.xyz/admin-upload-ebook'
 
 module.exports = {
@@ -13,6 +14,7 @@ module.exports = {
   UPLOAD_PATH,
   // MIME_TYPE_EPUB: 'application/epub+zip'
   MIME_TYPE_EPUB: 'application/epub',  // 上传电子书类型
+  OLD_UPLOAD_URL,
   UPLOAD_URL,
   UPDATE_TYPE_FROM_WEB: 1
 }

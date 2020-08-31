@@ -1,16 +1,30 @@
 const _ = require('lodash')
 const { insert, queryOne } = require('../db')
 const Book = require('../models/Book')
+const db = require('../db')
+const { reject } = require('lodash')
 
 // 判断是否存在此电子书
 function exists(book) {
-  /* const { title, author, publisher } = book
+  const { title, author, publisher } = book
+  console.log(title, author, publisher);
   const sql = `select * from book where title='${title}' and author='${author}' and publisher='${publisher}'`
-  return queryOne(sql) */
+  return queryOne(sql)
 }
 
-function removeBook() {
-
+// 移除电子书
+async function removeBook(book) {
+  if (book) {
+    // 删除保存的电子书文件数据
+    book.reset()
+    // 删除数据库中电子书数据
+    if (book.fileName) {
+      const removeBookSql = `delete from book where fileName='${book.fileName}'`
+      const removeContentsSql = `delete from contents where fileName='${book.fileName}'`
+      await db.querySql(removeBookSql)
+      await db.querySql(removeContentsSql)
+    }
+  }
 }
 async function insertContents(book) {
   let contents = book.getContents()
@@ -38,7 +52,7 @@ async function insertContents(book) {
 }
 
 function insertBook(book) {
-  return new Promise(async (reslove, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       if (book instanceof Book) {
         const result = await exists(book)
@@ -50,7 +64,7 @@ function insertBook(book) {
           // console.log('添加电子书');
           await insert(book.toDb(), 'book')
           await insertContents(book)
-          reslove()
+          resolve()
         }
       } else {
         reject(new Error('添加的图书对象不合法'))
@@ -61,6 +75,23 @@ function insertBook(book) {
   })
 }
 
+function getBook(fileName) {
+  return new Promise(async (resolve, reject) => {
+    const bookSql = `select * from book where fileName='${fileName}'`
+    const contentsSql = `select * from contents where fileName='${fileName}' order by \`order\``
+    const book = await db.queryOne(bookSql)
+    const contents = await db.querySql(contentsSql)
+    if (book) {
+      book.cover = Book.genCoverUrl(book)
+      book.contentsTree = Book.genContentsTree(contents)
+      resolve(book)
+    } else {
+      reject(new Error('电子书不存在'))
+    }
+  })
+}
+
 module.exports = {
-  insertBook
+  insertBook,
+  getBook
 }

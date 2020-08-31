@@ -17,7 +17,8 @@ var _require2 = require('../utils/jwt'),
     jwtDecoded = _require2.jwtDecoded;
 
 var _require3 = require('../services/book'),
-    insertBook = _require3.insertBook;
+    insertBook = _require3.insertBook,
+    getBook = _require3.getBook;
 
 var router = express.Router();
 /**
@@ -61,5 +62,18 @@ router.post('/create', function (req, res, next) {
     console.log(err);
     next(boom.badImplementation(err));
   });
+});
+router.get('/get', function (req, res, next) {
+  var fileName = req.query.fileName;
+
+  if (!fileName) {
+    next(boom.badRequest(new Error('参数fileName不能为空')));
+  } else {
+    getBook(fileName).then(function (book) {
+      new Result(book, '获取图书信息成功').success(res);
+    })["catch"](function (err) {
+      next(boom.badImplementation(err));
+    });
+  }
 });
 module.exports = router;

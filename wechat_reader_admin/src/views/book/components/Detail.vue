@@ -87,7 +87,7 @@
               <el-row>
                 <el-col :span="24">
                   <el-form-item :label-width="labelWidth" label="目录：">
-                    <div v-if="postForm.contents && postForm.contents.length > 0" class="contents-wrapper">
+                    <div v-if="postForm.contentsTree && contentsTree.length > 0" class="contents-wrapper">
                       <el-tree :data="contentsTree" @node-click="onContentClick" />
                     </div>
                     <span v-else>无</span>
@@ -107,7 +107,7 @@ import Sticky from '../../../components/Sticky/index'
 import EbookUpload from '../../../components/EbookUpload/index'
 import MDinput from '../../../components/MDinput/index'
 import Warning from './Warning'
-import { createBook } from '../../../api/book'
+import { createBook, getBook } from '../../../api/book'
 const defaultForm = {
   title: '', // 书名
   author: '', // 作者
@@ -160,12 +160,23 @@ export default {
       labelWidth: '120px'
     }
   },
+  created() {
+    if (this.isEdit) {
+      const { fileName } = this.$route.params
+      this.getBookData(fileName)
+    }
+  },
   methods: {
+    getBookData(fileName) {
+      getBook({ fileName }).then(res => {
+        this.setData(res.data)
+      })
+    },
     showGuide() {
       console.log('shou guide')
     },
     submitForm() {
-      // if (this.loading) return
+      if (this.loading) return
       this.loading = true
       this.$refs['postForm'].validate(async (valid, fields) => {
         console.log(valid, fields)
@@ -196,7 +207,7 @@ export default {
             duration: 2000
           })
           this.loading = false
-          this.setDefatult()
+          // this.setDefatult()
         })
         .catch(err => {
           console.log(err)
@@ -209,7 +220,8 @@ export default {
     setData(data) {
       this.postForm = Object.assign({}, this.postForm, data)
       this.contentsTree = data.contentsTree
-      // console.log(data)
+      // console.log(data.contentsTree)
+      this.fileList = [{ name: data.originalName, url: data.url }]
     },
     setDefatult() {
       // this.postForm = Object.assign({}, defaultForm)
