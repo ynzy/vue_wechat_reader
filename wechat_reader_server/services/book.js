@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const { insert, queryOne } = require('../db')
 const Book = require('../models/Book')
 
@@ -11,8 +12,29 @@ function exists(book) {
 function removeBook() {
 
 }
-function insertContents() {
-
+async function insertContents(book) {
+  let contents = book.getContents()
+  if (!contents) {
+    const newBook = await book.parse()
+    contents = newBook.getContents()
+  }
+  if (contents && contents.length > 0) {
+    for (let i = 0; i < contents.length; i++) {
+      let content = contents[i]
+      const _content = _.pick(content, [
+        'fileName',
+        'id',
+        'href',
+        'order',
+        'level',
+        'text',
+        'label',
+        'pid',
+        'navId'
+      ])
+      await insert(_content, 'contents')
+    }
+  }
 }
 
 function insertBook(book) {
@@ -25,7 +47,7 @@ function insertBook(book) {
           await removeBook(book)
           reject(new Error('电子书已存在'))
         } else {
-          console.log('添加电子书');
+          // console.log('添加电子书');
           await insert(book.toDb(), 'book')
           await insertContents(book)
           reslove()

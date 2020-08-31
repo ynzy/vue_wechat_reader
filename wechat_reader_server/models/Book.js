@@ -80,7 +80,7 @@ class Book {
     this.createDt = new Date().getTime()
     this.updateDt = new Date().getTime()
     this.updateType = data.updateType === 0 ? data.updateType : UPDATE_TYPE_FROM_WEB
-    // this.contents = data.contents
+    this.contents = data.contents
     this.category = data.category || 99
     this.categoryText = data.categoryText || '自定义'
   }
@@ -200,6 +200,7 @@ class Book {
         const dir = path.dirname(ncxFilePath).replace(UPLOAD_PATH, '')
         // console.log('dir', dir);
         const fileName = this.fileName
+        const unzipPath = this.unzipPath
         xml2js(xml, {
           explicitArray: false,
           ignoreAttrs: false
@@ -220,6 +221,8 @@ class Book {
                 // console.log(epub.flow);
                 newNavMap.forEach((chapter, index) => {
                   const src = chapter.content['$'].src
+                  chapter.id = `${src}`
+                  chapter.href = `${dir}/${src}`.replace(unzipPath, '')
                   chapter.text = `${UPLOAD_URL}${dir}/${src}`
                   // console.log(chapter.text);
                   chapter.label = chapter.navLabel.text || ''
@@ -275,6 +278,9 @@ class Book {
       updateDt: this.updateDt,
       updateType: this.updateType,
     }
+  }
+  getContents() {
+    return this.contents
   }
   // 生成路径
   static genPath(path) {

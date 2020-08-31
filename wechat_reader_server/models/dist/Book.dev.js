@@ -132,8 +132,8 @@ function () {
       this.createUser = data.username;
       this.createDt = new Date().getTime();
       this.updateDt = new Date().getTime();
-      this.updateType = data.updateType === 0 ? data.updateType : UPDATE_TYPE_FROM_WEB; // this.contents = data.contents
-
+      this.updateType = data.updateType === 0 ? data.updateType : UPDATE_TYPE_FROM_WEB;
+      this.contents = data.contents;
       this.category = data.category || 99;
       this.categoryText = data.categoryText || '自定义';
     } // 解析电子书路径
@@ -285,6 +285,7 @@ function () {
           var dir = path.dirname(ncxFilePath).replace(UPLOAD_PATH, ''); // console.log('dir', dir);
 
           var fileName = _this2.fileName;
+          var unzipPath = _this2.unzipPath;
           xml2js(xml, {
             explicitArray: false,
             ignoreAttrs: false
@@ -305,6 +306,8 @@ function () {
 
                 newNavMap.forEach(function (chapter, index) {
                   var src = chapter.content['$'].src;
+                  chapter.id = "".concat(src);
+                  chapter.href = "".concat(dir, "/").concat(src).replace(unzipPath, '');
                   chapter.text = "".concat(UPLOAD_URL).concat(dir, "/").concat(src); // console.log(chapter.text);
 
                   chapter.label = chapter.navLabel.text || '';
@@ -365,6 +368,11 @@ function () {
         updateDt: this.updateDt,
         updateType: this.updateType
       };
+    }
+  }, {
+    key: "getContents",
+    value: function getContents() {
+      return this.contents;
     } // 生成路径
 
   }], [{
