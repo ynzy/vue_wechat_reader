@@ -15,8 +15,37 @@ var _require = require('../utils/constant'),
 var _require2 = require('../utils'),
     isObject = _require2.isObject;
 
-var _require3 = require('lodash'),
-    reject = _require3.reject;
+function orLike(where, k, v) {
+  if (where === 'where') {
+    return where + " ".concat(k, " like '%").concat(v, "%'");
+  } else {
+    return where + " or ".concat(k, " like '%").concat(v, "%'");
+  }
+}
+
+function andLike(where, k, v) {
+  if (where === 'where') {
+    return where + " ".concat(k, " like '%").concat(v, "%'");
+  } else {
+    return where + " and ".concat(k, " like '%").concat(v, "%'");
+  }
+}
+
+function or(where, k, v) {
+  if (where === 'where') {
+    return where + " ".concat(k, "='").concat(v, "'");
+  } else {
+    return where + " or ".concat(k, "='").concat(v, "'");
+  }
+}
+
+function and(where, k, v) {
+  if (where === 'where') {
+    return where + " ".concat(k, "='").concat(v, "'");
+  } else {
+    return where + " and ".concat(k, "='").concat(v, "'");
+  }
+}
 
 function connect() {
   return mysql.createConnection({
@@ -154,5 +183,9 @@ module.exports = {
   querySql: querySql,
   queryOne: queryOne,
   insert: insert,
-  update: update
+  update: update,
+  orLike: orLike,
+  or: or,
+  andLike: andLike,
+  and: and
 };

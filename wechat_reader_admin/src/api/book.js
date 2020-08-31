@@ -31,3 +31,35 @@ export function getBook({ ...params }) {
     params
   })
 }
+
+/**
+ * 获取图书列表
+ */
+export function listBook({ ...params }) {
+  return request({
+    url: '/book/list',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 删除图书
+ * @param String fileName
+ */
+export function deleteBook({ ...params }) {
+  return request({
+    url: '/book/delete',
+    method: 'get',
+    params
+  })
+}
+/**
+ * 获取分类
+ */
+export function getCategory() {
+  return request({
+    url: '/book/category',
+    method: 'get'
+  })
+}

@@ -16,10 +16,7 @@ var boom = require('boom');
 var _require2 = require('../utils/jwt'),
     jwtDecoded = _require2.jwtDecoded;
 
-var _require3 = require('../services/book'),
-    insertBook = _require3.insertBook,
-    getBook = _require3.getBook,
-    updateBook = _require3.updateBook;
+var bookServices = require('../services/book');
 
 var router = express.Router();
 /**
@@ -57,7 +54,7 @@ router.post('/create', function (req, res, next) {
   }
 
   var book = new Book(null, req.body);
-  insertBook(book).then(function (result) {
+  bookServices.insertBook(book).then(function (result) {
     new Result('添加电子书成功').success(res);
   })["catch"](function (err) {
     console.log(err);
@@ -76,24 +73,46 @@ router.post('/update', function (req, res, next) {
   }
 
   var book = new Book(null, req.body);
-  updateBook(book).then(function (result) {
+  bookServices.updateBook(book).then(function (result) {
     new Result('更新电子书成功').success(res);
   })["catch"](function (err) {
     console.log(err);
     next(boom.badImplementation(err));
   });
-});
+}); // 获取图书
+
 router.get('/get', function (req, res, next) {
   var fileName = req.query.fileName;
 
   if (!fileName) {
     next(boom.badRequest(new Error('参数fileName不能为空')));
   } else {
-    getBook(fileName).then(function (book) {
+    bookServices.getBook(fileName).then(function (book) {
       new Result(book, '获取图书信息成功').success(res);
     })["catch"](function (err) {
       next(boom.badImplementation(err));
     });
   }
+}); // 获取分类
+
+router.get('/category', function (req, res, next) {
+  bookServices.getCategory().then(function (category) {
+    // console.log(category);
+    new Result(category, '获取分类成功').success(res);
+  })["catch"](function (err) {
+    boom.badImplementation(err);
+  });
+}); // 图书列表
+
+router.get('/list', function (req, res, next) {
+  bookServices.listBook(req.query).then(function (_ref) {
+    var list = _ref.list;
+    // console.log(category);
+    new Result({
+      list: list
+    }, '获取图书列表成功').success(res);
+  })["catch"](function (err) {
+    boom.badImplementation(err);
+  });
 });
 module.exports = router;

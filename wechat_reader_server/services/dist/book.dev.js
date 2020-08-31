@@ -11,7 +11,10 @@ var Book = require('../models/Book');
 var db = require('../db');
 
 var _require2 = require('lodash'),
-    reject = _require2.reject; // 判断是否存在此电子书
+    reject = _require2.reject;
+
+var _require3 = require('../utils/constant'),
+    debug = _require3.debug; // 判断是否存在此电子书
 
 
 function exists(book) {
@@ -283,8 +286,73 @@ function getBook(fileName) {
   });
 }
 
+function getCategory() {
+  var sql, result, categoryList;
+  return regeneratorRuntime.async(function getCategory$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
+        case 0:
+          sql = 'select * from category order by category asc';
+          _context6.next = 3;
+          return regeneratorRuntime.awrap(db.querySql(sql));
+
+        case 3:
+          result = _context6.sent;
+          categoryList = [];
+          result.forEach(function (item) {
+            categoryList.push({
+              label: item.categoryText,
+              value: item.category,
+              num: item.num
+            });
+          });
+          return _context6.abrupt("return", categoryList);
+
+        case 7:
+        case "end":
+          return _context6.stop();
+      }
+    }
+  });
+}
+
+function listBook(query) {
+  var _query$page, page, _query$pageSize, pageSize, sort, title, category, author, offset, bookSql, where, list;
+
+  return regeneratorRuntime.async(function listBook$(_context7) {
+    while (1) {
+      switch (_context7.prev = _context7.next) {
+        case 0:
+          debug && console.log(query);
+          _query$page = query.page, page = _query$page === void 0 ? 1 : _query$page, _query$pageSize = query.pageSize, pageSize = _query$pageSize === void 0 ? 20 : _query$pageSize, sort = query.sort, title = query.title, category = query.category, author = query.author;
+          offset = (page - 1) * pageSize;
+          bookSql = 'select * from book';
+          where = 'where';
+          title && (where = db.andLike(where, 'title', title));
+          author && (where = db.andLike(where, 'author', author));
+          category && (where = db.and(where, 'categoryText', category));
+          bookSql = "".concat(bookSql, " limit ").concat(pageSize, " offset ").concat(offset);
+          _context7.next = 11;
+          return regeneratorRuntime.awrap(db.querySql(bookSql));
+
+        case 11:
+          list = _context7.sent;
+          return _context7.abrupt("return", {
+            list: list
+          });
+
+        case 13:
+        case "end":
+          return _context7.stop();
+      }
+    }
+  });
+}
+
 module.exports = {
   insertBook: insertBook,
   getBook: getBook,
-  updateBook: updateBook
+  updateBook: updateBook,
+  getCategory: getCategory,
+  listBook: listBook
 };

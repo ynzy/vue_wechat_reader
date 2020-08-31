@@ -3,7 +3,39 @@ const config = require('./config')
 const { host, user, password, database } = config
 const { debug } = require('../utils/constant');
 const { isObject } = require('../utils');
-const { reject } = require('lodash');
+
+function orLike(where, k, v) {
+  if (where === 'where') {
+    return where + ` ${k} like '%${v}%'`
+  } else {
+    return where + ` or ${k} like '%${v}%'`
+  }
+}
+
+function andLike(where, k, v) {
+  if (where === 'where') {
+    return where + ` ${k} like '%${v}%'`
+  } else {
+    return where + ` and ${k} like '%${v}%'`
+  }
+}
+
+function or(where, k, v) {
+  if (where === 'where') {
+    return where + ` ${k}='${v}'`
+  } else {
+    return where + ` or ${k}='${v}'`
+  }
+}
+
+function and(where, k, v) {
+  if (where === 'where') {
+    return where + ` ${k}='${v}'`
+  } else {
+    return where + ` and ${k}='${v}'`
+  }
+}
+
 function connect() {
   return mysql.createConnection({
     host,
@@ -136,5 +168,9 @@ module.exports = {
   querySql,
   queryOne,
   insert,
-  update
+  update,
+  orLike,
+  or,
+  andLike,
+  and
 }

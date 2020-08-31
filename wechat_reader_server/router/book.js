@@ -6,7 +6,7 @@ const Result = require('../models/Result')
 const Book = require('../models/Book')
 const boom = require('boom')
 const { jwtDecoded } = require('../utils/jwt')
-const { insertBook, getBook, updateBook } = require('../services/book')
+const bookServices = require('../services/book')
 
 const router = express.Router()
 
@@ -42,7 +42,7 @@ router.post('/create', function (req, res, next) {
     req.body.username = decode.username
   }
   const book = new Book(null, req.body)
-  insertBook(book).then(result => {
+  bookServices.insertBook(book).then(result => {
     new Result('添加电子书成功').success(res)
   }).catch(err => {
     console.log(err);
@@ -60,25 +60,46 @@ router.post('/update', function (req, res, next) {
     req.body.username = decode.username
   }
   const book = new Book(null, req.body)
-  updateBook(book).then(result => {
+  bookServices.updateBook(book).then(result => {
     new Result('更新电子书成功').success(res)
   }).catch(err => {
     console.log(err);
     next(boom.badImplementation(err))
   })
 })
-
+// 获取图书
 router.get('/get', function (req, res, next) {
   const { fileName } = req.query
   if (!fileName) {
     next(boom.badRequest(new Error('参数fileName不能为空')))
   } else {
-    getBook(fileName).then(book => {
+    bookServices.getBook(fileName).then(book => {
       new Result(book, '获取图书信息成功').success(res)
     }).catch(err => {
       next(boom.badImplementation(err))
     })
   }
 })
+// 获取分类
+router.get('/category', function (req, res, next) {
+  bookServices.getCategory().then(category => {
+    // console.log(category);
+    new Result(category, '获取分类成功').success(res)
+  }).catch(err => {
+    boom.badImplementation(err)
+  })
+})
+
+// 图书列表
+router.get('/list', function (req, res, next) {
+  bookServices.listBook(req.query).then(({ list }) => {
+    // console.log(category);
+    new Result({ list }, '获取图书列表成功').success(res)
+  }).catch(err => {
+    boom.badImplementation(err)
+  })
+})
+
+
 
 module.exports = router

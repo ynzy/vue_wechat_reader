@@ -3,6 +3,7 @@ const { insert, queryOne } = require('../db')
 const Book = require('../models/Book')
 const db = require('../db')
 const { reject } = require('lodash')
+const { debug } = require('../utils/constant')
 
 // 判断是否存在此电子书
 function exists(book) {
@@ -114,8 +115,42 @@ function getBook(fileName) {
   })
 }
 
+async function getCategory() {
+  const sql = 'select * from category order by category asc'
+  const result = await db.querySql(sql)
+  const categoryList = []
+  result.forEach(item => {
+    categoryList.push({
+      label: item.categoryText,
+      value: item.category,
+      num: item.num
+    })
+  })
+  return categoryList
+}
+async function listBook(query) {
+  debug && console.log(query);
+  const { page = 1,
+    pageSize = 20,
+    sort,
+    title,
+    category,
+    author } = query
+  const offset = (page - 1) * pageSize;
+  let bookSql = 'select * from book'
+  let where = 'where'
+  title && (where = db.andLike(where, 'title', title))
+  author && (where = db.andLike(where, 'author', author))
+  category && (where = db.and(where, 'categoryText', category))
+  bookSql = `${bookSql} limit ${pageSize} offset ${offset}`
+  const list = await db.querySql(bookSql)
+  return { list }
+}
+
 module.exports = {
   insertBook,
   getBook,
-  updateBook
+  updateBook,
+  getCategory,
+  listBook
 }
