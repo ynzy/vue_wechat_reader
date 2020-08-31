@@ -187,8 +187,7 @@ function insertBook(book) {
 
 function updateBook(book) {
   return new Promise(function _callee2(resolve, reject) {
-    var result, model, _result;
-
+    var result, model;
     return regeneratorRuntime.async(function _callee2$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
@@ -196,7 +195,7 @@ function updateBook(book) {
             _context4.prev = 0;
 
             if (!(book instanceof Book)) {
-              _context4.next = 16;
+              _context4.next = 19;
               break;
             }
 
@@ -207,7 +206,7 @@ function updateBook(book) {
             result = _context4.sent;
 
             if (!result) {
-              _context4.next = 16;
+              _context4.next = 19;
               break;
             }
 
@@ -219,33 +218,43 @@ function updateBook(book) {
             }
 
             reject(new Error('内置图书不能编辑'));
-            _context4.next = 16;
+            _context4.next = 19;
             break;
 
           case 11:
-            _context4.next = 13;
-            return regeneratorRuntime.awrap(db.update(model, 'book', "where fileName='".concat(book.fileName, "'")));
+            delete model.createDt; // 创建时间不能更新
 
-          case 13:
-            _result = _context4.sent;
-            console.log('编辑图书', _result);
-            resolve();
+            if (!(result.createUser !== book.createUser)) {
+              _context4.next = 16;
+              break;
+            }
 
-          case 16:
-            _context4.next = 21;
+            reject(new Error('只有创建人才能编辑'));
+            _context4.next = 19;
             break;
 
+          case 16:
+            _context4.next = 18;
+            return regeneratorRuntime.awrap(db.update(model, 'book', "where fileName='".concat(book.fileName, "'")));
+
           case 18:
-            _context4.prev = 18;
+            resolve();
+
+          case 19:
+            _context4.next = 24;
+            break;
+
+          case 21:
+            _context4.prev = 21;
             _context4.t0 = _context4["catch"](0);
             reject(_context4.t0);
 
-          case 21:
+          case 24:
           case "end":
             return _context4.stop();
         }
       }
-    }, null, null, [[0, 18]]);
+    }, null, null, [[0, 21]]);
   });
 }
 
@@ -331,7 +340,12 @@ function listBook(query) {
 
           title && (where = db.andLike(where, 'title', title));
           author && (where = db.andLike(where, 'author', author));
-          category && (where = db.and(where, 'categoryText', category)); // 查询排序
+          category && (where = db.and(where, 'categoryText', category));
+
+          if (where !== 'where') {
+            bookSql = "".concat(bookSql, " ").concat(where);
+          } // 查询排序
+
 
           if (sort) {
             symbol = sort[0];
@@ -349,20 +363,22 @@ function listBook(query) {
             countSql = "".concat(countSql, " ").concat(where);
           }
 
-          debug && console.log(bookSql, '\n', countSql);
-          _context7.next = 15;
+          debug && console.log('bookSql:', bookSql);
+          debug && console.log('countSql:', countSql);
+          _context7.next = 17;
           return regeneratorRuntime.awrap(db.querySql(bookSql));
 
-        case 15:
+        case 17:
           list = _context7.sent;
           list.forEach(function (book) {
             return book.cover = Book.genCoverUrl(book);
           });
-          _context7.next = 19;
+          _context7.next = 21;
           return regeneratorRuntime.awrap(db.querySql(countSql));
 
-        case 19:
+        case 21:
           count = _context7.sent;
+          console.log(list.length);
           return _context7.abrupt("return", {
             list: list,
             count: count[0].count,
@@ -370,7 +386,7 @@ function listBook(query) {
             pageSize: pageSize
           });
 
-        case 21:
+        case 24:
         case "end":
           return _context7.stop();
       }

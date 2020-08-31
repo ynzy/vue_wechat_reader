@@ -365,7 +365,7 @@ function () {
         filePath: this.filePath,
         unzipPath: this.unzipPath,
         coverPath: this.coverPath,
-        createUser: this.username,
+        createUser: this.createUser,
         createDt: this.createDt,
         updateDt: this.updateDt,
         updateType: this.updateType

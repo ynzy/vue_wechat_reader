@@ -87,9 +87,13 @@ function updateBook(book) {
           if (+result.updateType === 0) {
             reject(new Error('内置图书不能编辑'))
           } else {
-            let result = await db.update(model, 'book', `where fileName='${book.fileName}'`)
-            console.log('编辑图书', result);
-            resolve()
+            delete model.createDt // 创建时间不能更新
+            if (result.createUser !== book.createUser) {
+              reject(new Error('只有创建人才能编辑'))
+            } else {
+              await db.update(model, 'book', `where fileName='${book.fileName}'`)
+              resolve()
+            }
           }
         }
       }
@@ -143,6 +147,9 @@ async function listBook(query) {
   title && (where = db.andLike(where, 'title', title))
   author && (where = db.andLike(where, 'author', author))
   category && (where = db.and(where, 'categoryText', category))
+  if (where !== 'where') {
+    bookSql = `${bookSql} ${where}`
+  }
   // 查询排序
   if (sort) {
     const symbol = sort[0]
@@ -157,10 +164,12 @@ async function listBook(query) {
   if (where !== 'where') {
     countSql = `${countSql} ${where}`
   }
-  debug && console.log(bookSql, '\n', countSql)
+  debug && console.log('bookSql:', bookSql)
+  debug && console.log('countSql:', countSql)
   const list = await db.querySql(bookSql)
   list.forEach(book => book.cover = Book.genCoverUrl(book))
   const count = await db.querySql(countSql)
+  console.log(list.length);
   return { list, count: count[0].count, page, pageSize }
 }
 

@@ -210,13 +210,16 @@ export default {
         this.list = data
         this.total = total
         this.listLoading = false
+        console.log(this.list.length)
         this.list.forEach(book => {
           book.titleWrapper = this.wrapperKeyword('title', book.title)
           book.authorWrapper = this.wrapperKeyword('author', book.author)
         })
+        console.log(this.list.length)
       })
     },
     handleFilter() {
+      this.list = []
       this.listQuery.page = 1
       this.refresh()
     },
