@@ -317,7 +317,7 @@ function getCategory() {
 }
 
 function listBook(query) {
-  var _query$page, page, _query$pageSize, pageSize, sort, title, category, author, offset, bookSql, where, list;
+  var _query$page, page, _query$pageSize, pageSize, sort, title, category, author, offset, bookSql, where, symbol, column, order, countSql, list, count;
 
   return regeneratorRuntime.async(function listBook$(_context7) {
     while (1) {
@@ -327,21 +327,50 @@ function listBook(query) {
           _query$page = query.page, page = _query$page === void 0 ? 1 : _query$page, _query$pageSize = query.pageSize, pageSize = _query$pageSize === void 0 ? 20 : _query$pageSize, sort = query.sort, title = query.title, category = query.category, author = query.author;
           offset = (page - 1) * pageSize;
           bookSql = 'select * from book';
-          where = 'where';
+          where = 'where'; // 查询关键字
+
           title && (where = db.andLike(where, 'title', title));
           author && (where = db.andLike(where, 'author', author));
-          category && (where = db.and(where, 'categoryText', category));
-          bookSql = "".concat(bookSql, " limit ").concat(pageSize, " offset ").concat(offset);
-          _context7.next = 11;
+          category && (where = db.and(where, 'categoryText', category)); // 查询排序
+
+          if (sort) {
+            symbol = sort[0];
+            column = sort.slice(1, sort.length);
+            order = symbol === '+' ? 'asc' : 'desc';
+            bookSql = "".concat(bookSql, " order by ").concat(column, " ").concat(order);
+          } // 查询分页
+
+
+          bookSql = "".concat(bookSql, " limit ").concat(pageSize, " offset ").concat(offset); // 查询总数
+
+          countSql = "select count(*) as count from book";
+
+          if (where !== 'where') {
+            countSql = "".concat(countSql, " ").concat(where);
+          }
+
+          debug && console.log(bookSql, '\n', countSql);
+          _context7.next = 15;
           return regeneratorRuntime.awrap(db.querySql(bookSql));
 
-        case 11:
+        case 15:
           list = _context7.sent;
+          list.forEach(function (book) {
+            return book.cover = Book.genCoverUrl(book);
+          });
+          _context7.next = 19;
+          return regeneratorRuntime.awrap(db.querySql(countSql));
+
+        case 19:
+          count = _context7.sent;
           return _context7.abrupt("return", {
-            list: list
+            list: list,
+            count: count[0].count,
+            page: page,
+            pageSize: pageSize
           });
 
-        case 13:
+        case 21:
         case "end":
           return _context7.stop();
       }

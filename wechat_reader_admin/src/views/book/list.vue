@@ -186,7 +186,8 @@ export default {
     parseQuery() {
       const listQuery = {
         page: 1,
-        pageSize: 20
+        pageSize: 20,
+        sort: '+id'
       }
       this.listQuery = Object.assign({}, this.listQuery, listQuery)
     },
@@ -206,9 +207,8 @@ export default {
       this.listLoading = true
       listBook(this.listQuery).then(response => {
         const { data, total } = response
-        console.log(data)
-        this.list = data.list
-        // this.total = total
+        this.list = data
+        this.total = total
         this.listLoading = false
         this.list.forEach(book => {
           book.titleWrapper = this.wrapperKeyword('title', book.title)
@@ -228,9 +228,15 @@ export default {
     },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
+      this.sortBy(prop, order)
+    },
+    sortBy(prop, order) {
+      if (order === 'ascending') {
+        this.listQuery.sort = `+${prop}`
+      } else {
+        this.listQuery.sort = `-${prop}`
       }
+      this.handleFilter()
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort

@@ -92,9 +92,15 @@ router.get('/category', function (req, res, next) {
 
 // 图书列表
 router.get('/list', function (req, res, next) {
-  bookServices.listBook(req.query).then(({ list }) => {
+  bookServices.listBook(req.query).then(({ list, count, page, pageSize }) => {
     // console.log(category);
-    new Result({ list }, '获取图书列表成功').success(res)
+    new Result(list,
+      '获取图书列表成功',
+      {
+        page: +page,
+        pageSize: +pageSize,
+        total: count || 0
+      }).success(res)
   }).catch(err => {
     boom.badImplementation(err)
   })

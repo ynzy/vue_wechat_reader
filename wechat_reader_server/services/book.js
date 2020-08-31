@@ -139,12 +139,29 @@ async function listBook(query) {
   const offset = (page - 1) * pageSize;
   let bookSql = 'select * from book'
   let where = 'where'
+  // 查询关键字
   title && (where = db.andLike(where, 'title', title))
   author && (where = db.andLike(where, 'author', author))
   category && (where = db.and(where, 'categoryText', category))
+  // 查询排序
+  if (sort) {
+    const symbol = sort[0]
+    const column = sort.slice(1, sort.length)
+    const order = symbol === '+' ? 'asc' : 'desc'
+    bookSql = `${bookSql} order by ${column} ${order}`
+  }
+  // 查询分页
   bookSql = `${bookSql} limit ${pageSize} offset ${offset}`
+  // 查询总数
+  let countSql = `select count(*) as count from book`
+  if (where !== 'where') {
+    countSql = `${countSql} ${where}`
+  }
+  debug && console.log(bookSql, '\n', countSql)
   const list = await db.querySql(bookSql)
-  return { list }
+  list.forEach(book => book.cover = Book.genCoverUrl(book))
+  const count = await db.querySql(countSql)
+  return { list, count: count[0].count, page, pageSize }
 }
 
 module.exports = {
