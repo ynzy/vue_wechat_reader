@@ -107,7 +107,7 @@ import Sticky from '../../../components/Sticky/index'
 import EbookUpload from '../../../components/EbookUpload/index'
 import MDinput from '../../../components/MDinput/index'
 import Warning from './Warning'
-import { createBook, getBook } from '../../../api/book'
+import { createBook, getBook, updateBook } from '../../../api/book'
 const defaultForm = {
   title: '', // 书名
   author: '', // 作者
@@ -192,22 +192,25 @@ export default {
         if (!this.isEdit) {
           this.addBook(book)
         } else {
-          // response = await updateBook(book)
+          this.editBook(book)
         }
       })
+    },
+    onSuccess(res) {
+      const { msg } = res
+      this.$notify({
+        title: '操作成功',
+        message: msg,
+        type: 'success',
+        duration: 2000
+      })
+      this.loading = false
     },
     addBook(book) {
       createBook(book)
         .then(res => {
-          const { msg } = res
-          this.$notify({
-            title: '操作成功',
-            message: msg,
-            type: 'success',
-            duration: 2000
-          })
-          this.loading = false
-          // this.setDefatult()
+          this.onSuccess(res)
+          this.setDefatult()
         })
         .catch(err => {
           console.log(err)
@@ -215,13 +218,20 @@ export default {
         })
     },
     editBook(book) {
-      // updateBook(book)
+      updateBook(book)
+        .then(res => {
+          this.onSuccess(res)
+        })
+        .catch(err => {
+          console.log(err)
+          this.loading = false
+        })
     },
     setData(data) {
       this.postForm = Object.assign({}, this.postForm, data)
       this.contentsTree = data.contentsTree
       // console.log(data.contentsTree)
-      this.fileList = [{ name: data.originalName, url: data.url }]
+      this.fileList = [{ name: data.originalName || data.fileName, url: data.url }]
     },
     setDefatult() {
       // this.postForm = Object.assign({}, defaultForm)

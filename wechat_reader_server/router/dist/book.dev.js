@@ -18,7 +18,8 @@ var _require2 = require('../utils/jwt'),
 
 var _require3 = require('../services/book'),
     insertBook = _require3.insertBook,
-    getBook = _require3.getBook;
+    getBook = _require3.getBook,
+    updateBook = _require3.updateBook;
 
 var router = express.Router();
 /**
@@ -58,6 +59,25 @@ router.post('/create', function (req, res, next) {
   var book = new Book(null, req.body);
   insertBook(book).then(function (result) {
     new Result('添加电子书成功').success(res);
+  })["catch"](function (err) {
+    console.log(err);
+    next(boom.badImplementation(err));
+  });
+});
+/**
+ * 编辑图书
+ */
+
+router.post('/update', function (req, res, next) {
+  var decode = jwtDecoded(req);
+
+  if (decode && decode.username) {
+    req.body.username = decode.username;
+  }
+
+  var book = new Book(null, req.body);
+  updateBook(book).then(function (result) {
+    new Result('更新电子书成功').success(res);
   })["catch"](function (err) {
     console.log(err);
     next(boom.badImplementation(err));

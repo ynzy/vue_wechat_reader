@@ -182,25 +182,89 @@ function insertBook(book) {
   });
 }
 
-function getBook(fileName) {
+function updateBook(book) {
   return new Promise(function _callee2(resolve, reject) {
-    var bookSql, contentsSql, book, contents;
+    var result, model, _result;
+
     return regeneratorRuntime.async(function _callee2$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
+            _context4.prev = 0;
+
+            if (!(book instanceof Book)) {
+              _context4.next = 16;
+              break;
+            }
+
+            _context4.next = 4;
+            return regeneratorRuntime.awrap(getBook(book.fileName));
+
+          case 4:
+            result = _context4.sent;
+
+            if (!result) {
+              _context4.next = 16;
+              break;
+            }
+
+            model = book.toDb();
+
+            if (!(+result.updateType === 0)) {
+              _context4.next = 11;
+              break;
+            }
+
+            reject(new Error('内置图书不能编辑'));
+            _context4.next = 16;
+            break;
+
+          case 11:
+            _context4.next = 13;
+            return regeneratorRuntime.awrap(db.update(model, 'book', "where fileName='".concat(book.fileName, "'")));
+
+          case 13:
+            _result = _context4.sent;
+            console.log('编辑图书', _result);
+            resolve();
+
+          case 16:
+            _context4.next = 21;
+            break;
+
+          case 18:
+            _context4.prev = 18;
+            _context4.t0 = _context4["catch"](0);
+            reject(_context4.t0);
+
+          case 21:
+          case "end":
+            return _context4.stop();
+        }
+      }
+    }, null, null, [[0, 18]]);
+  });
+}
+
+function getBook(fileName) {
+  return new Promise(function _callee3(resolve, reject) {
+    var bookSql, contentsSql, book, contents;
+    return regeneratorRuntime.async(function _callee3$(_context5) {
+      while (1) {
+        switch (_context5.prev = _context5.next) {
+          case 0:
             bookSql = "select * from book where fileName='".concat(fileName, "'");
             contentsSql = "select * from contents where fileName='".concat(fileName, "' order by `order`");
-            _context4.next = 4;
+            _context5.next = 4;
             return regeneratorRuntime.awrap(db.queryOne(bookSql));
 
           case 4:
-            book = _context4.sent;
-            _context4.next = 7;
+            book = _context5.sent;
+            _context5.next = 7;
             return regeneratorRuntime.awrap(db.querySql(contentsSql));
 
           case 7:
-            contents = _context4.sent;
+            contents = _context5.sent;
 
             if (book) {
               book.cover = Book.genCoverUrl(book);
@@ -212,7 +276,7 @@ function getBook(fileName) {
 
           case 9:
           case "end":
-            return _context4.stop();
+            return _context5.stop();
         }
       }
     });
@@ -221,5 +285,6 @@ function getBook(fileName) {
 
 module.exports = {
   insertBook: insertBook,
-  getBook: getBook
+  getBook: getBook,
+  updateBook: updateBook
 };

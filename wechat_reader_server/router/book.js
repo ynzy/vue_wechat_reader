@@ -6,7 +6,7 @@ const Result = require('../models/Result')
 const Book = require('../models/Book')
 const boom = require('boom')
 const { jwtDecoded } = require('../utils/jwt')
-const { insertBook, getBook } = require('../services/book')
+const { insertBook, getBook, updateBook } = require('../services/book')
 
 const router = express.Router()
 
@@ -48,7 +48,24 @@ router.post('/create', function (req, res, next) {
     console.log(err);
     next(boom.badImplementation(err))
   })
+})
 
+/**
+ * 编辑图书
+ */
+
+router.post('/update', function (req, res, next) {
+  const decode = jwtDecoded(req)
+  if (decode && decode.username) {
+    req.body.username = decode.username
+  }
+  const book = new Book(null, req.body)
+  updateBook(book).then(result => {
+    new Result('更新电子书成功').success(res)
+  }).catch(err => {
+    console.log(err);
+    next(boom.badImplementation(err))
+  })
 })
 
 router.get('/get', function (req, res, next) {

@@ -15,6 +15,9 @@ var _require = require('../utils/constant'),
 var _require2 = require('../utils'),
     isObject = _require2.isObject;
 
+var _require3 = require('lodash'),
+    reject = _require3.reject;
+
 function connect() {
   return mysql.createConnection({
     host: host,
@@ -106,10 +109,50 @@ var insert = function insert(model, tableName) {
       }
     }
   });
-};
+}; // 更新数据
+
+
+function update(model, tableName, where) {
+  return new Promise(function (resolve, reject) {
+    if (!isObject(model)) {
+      reject(new Error('插入数据库失败，插入数据非对象'));
+    } else {
+      var entry = [];
+      Object.keys(model).forEach(function (key) {
+        if (model.hasOwnProperty(key)) {
+          entry.push("`".concat(key, "`='").concat(model[key], "'"));
+        }
+      });
+
+      if (entry.length > 0) {
+        var sql = "UPDATE `".concat(tableName, "` SET");
+        sql = "".concat(sql, " ").concat(entry.join(','), " ").concat(where);
+        debug && console.log(sql);
+        var conn = connect();
+
+        try {
+          conn.query(sql, function (err, result) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          });
+        } catch (e) {
+          reject(e);
+        } finally {
+          conn.end();
+        }
+      } else {
+        reject(new Error('SQL解析失败'));
+      }
+    }
+  });
+}
 
 module.exports = {
   querySql: querySql,
   queryOne: queryOne,
-  insert: insert
+  insert: insert,
+  update: update
 };
