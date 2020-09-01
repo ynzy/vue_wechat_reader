@@ -4,7 +4,7 @@
     <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
       <sticky :z-index="10" :class-name="'sub-navbar '">
         <el-button v-if="!isEdit" @click.prevent.stop="showGuide">显示帮助</el-button>
-        <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
+        <el-button v-loading="loading" style="margin-left: 10px;" type="success" class="submit-btn" @click="submitForm">
           {{ isEdit ? '编辑电子书' : '新增电子书' }}
         </el-button>
       </sticky>
@@ -108,6 +108,9 @@ import EbookUpload from '../../../components/EbookUpload/index'
 import MDinput from '../../../components/MDinput/index'
 import Warning from './Warning'
 import { createBook, getBook, updateBook } from '../../../api/book'
+import Driver from 'driver.js' // import driver.js
+import 'driver.js/dist/driver.min.css' // import driver.js css
+import steps from './steps'
 const defaultForm = {
   title: '', // 书名
   author: '', // 作者
@@ -157,7 +160,8 @@ export default {
       postForm: Object.assign({}, defaultForm),
       fileList: [],
       contentsTree: [],
-      labelWidth: '120px'
+      labelWidth: '120px',
+      driver: null
     }
   },
   created() {
@@ -166,6 +170,15 @@ export default {
       this.getBookData(fileName)
     }
   },
+  mounted() {
+    this.driver = new Driver({
+      nextBtnText: '下一个',
+      prevBtnText: '上一个',
+      closeBtnText: '关闭',
+      doneBtnText: '完成'
+    })
+    console.log(this.driver)
+  },
   methods: {
     getBookData(fileName) {
       getBook({ fileName }).then(res => {
@@ -173,14 +186,15 @@ export default {
       })
     },
     showGuide() {
-      console.log('shou guide')
+      this.driver.defineSteps(steps)
+      this.driver.start()
     },
     submitForm() {
       if (this.loading) return
       this.loading = true
       this.$refs['postForm'].validate(async (valid, fields) => {
-        console.log(valid, fields)
-        console.log(Object.keys(fields)[0])
+        // console.log(valid, fields)
+        // console.log(Object.keys(fields)[0])
         if (!valid) {
           this.$message.error(fields[Object.keys(fields)[0]][0].message)
           this.loading = false
@@ -249,14 +263,13 @@ export default {
       this.setDefatult()
     },
     onContentClick(data) {
-      console.log(data)
+      // console.log(data)
       const { text } = data
       if (text) {
         window.open(text)
       }
     }
-  },
-  mounted() {}
+  }
 }
 </script>
 <style lang="scss" scoped>

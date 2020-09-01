@@ -221,7 +221,7 @@ export default {
       this.listQuery = listQuery
     },
     refresh() {
-      this.$router.push({
+      this.$router.replace({
         path: '/book/list',
         query: this.listQuery
       })
