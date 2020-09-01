@@ -184,11 +184,11 @@ export default {
         if (!valid) {
           this.$message.error(fields[Object.keys(fields)[0]][0].message)
           this.loading = false
+          return
         }
         const book = Object.assign({}, this.postForm)
         delete book.contents
         delete book.contentsTree
-
         if (!this.isEdit) {
           this.addBook(book)
         } else {

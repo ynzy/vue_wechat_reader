@@ -1,6 +1,7 @@
 
 const express = require('express')
 const multer = require('multer')
+const { check, body, validationResult } = require('express-validator');
 const { UPLOAD_PATH } = require('../utils/constant')
 const Result = require('../models/Result')
 const Book = require('../models/Book')
@@ -35,8 +36,22 @@ router.post('/upload', multer({ dest: `${UPLOAD_PATH}/book` }).single('file'),
 /**
  * 新增图书
  */
-
-router.post('/create', function (req, res, next) {
+const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+  // 定义返回错误的样式，存入array数组
+  return `${param}: ${msg}`;
+};
+router.post('/create', [
+  body('title').isLength({ min: 1 }).withMessage('title不能为空'),
+  body('author').isLength({ min: 1 }).withMessage('author不能为空'),
+  body('publisher').isLength({ min: 1 }).withMessage('publisher不能为空'),
+], function (req, res, next) {
+  // 错误校验
+  const errors = validationResult(req).formatWith(errorFormatter);
+  if (!errors.isEmpty()) {
+    next(boom.badImplementation(errors.array()[0]))
+    return
+  }
+  // 添加图书
   const decode = jwtDecoded(req)
   if (decode && decode.username) {
     req.body.username = decode.username
@@ -106,6 +121,15 @@ router.get('/list', function (req, res, next) {
   })
 })
 
+// 图书列表
+router.get('/delete', function (req, res, next) {
+  bookServices.deleteBook(req.query).then(() => {
+    // console.log(res);
+    new Result('删除电子书成功',).success(res)
+  }).catch(err => {
+    next(boom.badImplementation(err))
+  })
+})
 
 
 module.exports = router
