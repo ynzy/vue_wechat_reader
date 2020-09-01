@@ -6,9 +6,7 @@
       </template>
     </el-table-column>
     <el-table-column label="Price" width="195" align="center">
-      <template slot-scope="scope">
-        ¥{{ scope.row.price | toThousandFilter }}
-      </template>
+      <template slot-scope="scope"> ¥{{ scope.row.price | toThousandFilter }} </template>
     </el-table-column>
     <el-table-column label="Status" width="100" align="center">
       <template slot-scope="{ row }">
@@ -21,8 +19,6 @@
 </template>
 
 <script>
-import { transactionList } from '@/api/remote-search'
-
 export default {
   filters: {
     statusFilter(status) {
@@ -41,15 +37,7 @@ export default {
       list: null
     }
   },
-  created() {
-    // this.fetchData()
-  },
-  methods: {
-    fetchData() {
-      transactionList().then(response => {
-        this.list = response.data.items.slice(0, 8)
-      })
-    }
-  }
+  created() {},
+  methods: {}
 }
 </script>

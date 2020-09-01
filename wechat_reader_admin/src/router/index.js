@@ -6,6 +6,7 @@ Vue.use(Router)
 /* Layout */
 import Layout from '@/layout'
 
+
 export const constantRoutes = [
   {
     path: '/redirect',
@@ -53,7 +54,10 @@ export const constantRoutes = [
   },
 ]
 
-
+/**
+ * asyncRoutes
+ * the routes that need to be dynamically loaded based on user roles
+ */
 export const asyncRoutes = [
   {
     path: '/book',
@@ -85,6 +89,7 @@ export const asyncRoutes = [
       },
     ]
   },
+  // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
 

@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'has-logo': showLogo }">
+  <div :class="{'has-logo':showLogo}">
     <logo v-if="showLogo" :collapse="isCollapse" />
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <el-menu
@@ -27,18 +27,17 @@ import variables from '@/styles/variables.scss'
 export default {
   components: { SidebarItem, Logo },
   computed: {
-    ...mapGetters(['permission_routes', 'sidebar']),
+    ...mapGetters([
+      'permission_routes',
+      'sidebar'
+    ]),
     activeMenu() {
       const route = this.$route
       const { meta, path } = route
-      // console.log(meta)
       // if set path, the sidebar will highlight the path you set
       if (meta.activeMenu) {
-        console.log(meta.activeMenu)
         return meta.activeMenu
       }
-      // console.log(path)
-
       return path
     },
     showLogo() {
