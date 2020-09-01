@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
+      <!-- @blur="handleFilter" -->
       <el-input
         v-model="listQuery.title"
         clearable
@@ -49,6 +50,7 @@
       fit
       highlight-current-row
       style="width: 100%;"
+      :defalut-sort="defalutSort"
       @sort-change="sortChange"
     >
       <el-table-column
@@ -160,7 +162,8 @@ export default {
       downloadLoading: false,
       listQuery: {},
       showCover: true,
-      categoryList: []
+      categoryList: [],
+      defalutSort: []
     }
   },
   created() {
@@ -169,6 +172,17 @@ export default {
   mounted() {
     this.getList()
     this.getCategoryList()
+  },
+  beforeRouteUpdate(to, from, next) {
+    // 对比路由参数，刷新页面
+    if (to.path === from.path) {
+      const newQuery = Object.assign({}, to.query)
+      const oldQuery = Object.assign({}, from.query)
+      if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
+        this.getList()
+      }
+    }
+    next()
   },
   methods: {
     // 匹配搜索条件高亮
@@ -184,19 +198,34 @@ export default {
     },
     // 收集查询条件
     parseQuery() {
-      const listQuery = {
+      const query = Object.assign({}, this.$route.query)
+      let sort = '+id'
+      let listQuery = {
         page: 1,
         pageSize: 20,
-        sort: '+id'
+        sort: '-id'
       }
-      this.listQuery = Object.assign({}, this.listQuery, listQuery)
+      if (query) {
+        query.page && (query.page = Number(query.page))
+        query.pageSize && (query.pageSize = Number(query.pageSize))
+        query.sort && (sort = query.sort)
+
+        listQuery = Object.assign({}, query, listQuery)
+      }
+      const sortSymbol = sort[0]
+      const sortColumn = sort.slice(1, sort.length)
+      this.defalutSort = {
+        prop: sortColumn,
+        order: sortSymbol === '+' ? 'ascending' : 'descending'
+      }
+      this.listQuery = listQuery
     },
     refresh() {
-      /* this.$router.push({
+      this.$router.push({
         path: '/book/list',
         query: this.listQuery
-      }) */
-      this.getList()
+      })
+      // this.getList()
     },
     getCategoryList() {
       getCategory().then(response => {
