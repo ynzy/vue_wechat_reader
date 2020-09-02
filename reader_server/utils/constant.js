@@ -5,7 +5,7 @@ let UPLOAD_PATH,
   dbHost,
   dbUser,
   dbPwd
-if (process.env.NODE_ENV == "production") {
+if (process.env.NODE_ENV == "prod") {
   //线上接口地址
   UPLOAD_PATH = '/root/upload/admin-upload/ebook'
   OLD_UPLOAD_URL = 'https://yunyoushe.xyz/book/res/img'
