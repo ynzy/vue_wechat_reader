@@ -12,7 +12,7 @@ if (process.env.NODE_ENV == "production") {
   UPLOAD_URL = 'https://yunyoushe.xyz/admin-upload-ebook'
   dbHost = '101.37.171.186'
   dbUser = 'root'
-  dbPwd = '123456'
+  dbPwd = ''
 } else {
   //测试环境接口地址
   UPLOAD_PATH = 'D:/A_Personal/epub/admin-upload-ebook'
