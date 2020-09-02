@@ -20,7 +20,7 @@ if (process.env.NODE_ENV == "production") {
   UPLOAD_URL = 'https://yunyoushe.xyz/admin-upload-ebook'
   dbHost = 'localhost'
   dbUser = 'root'
-  dbPwd = '123456'
+  dbPwd = ''
 }
 module.exports = {
   CODE_ERROR: -1,
