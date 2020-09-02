@@ -4,8 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "serve": "set NODE_ENV=dev&&nodemon app.js",
-    "prod": "set NODE_ENV=production&&nodemon app.js"
+    "serve": "set NODE_ENV=dev && nodemon app.js",
+    "prod": "export NODE_ENV=development && nodemon app.js"
   },
   "dependencies": {
     "adm-zip": "^0.4.16",
