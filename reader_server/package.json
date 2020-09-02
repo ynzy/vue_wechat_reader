@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "serve": "set NODE_ENV=dev && nodemon app.js",
-    "prod": "export NODE_ENV=prod && nodemon app.js"
+    "prod": "set NODE_ENV=prod && nodemon app.js"
   },
   "dependencies": {
     "adm-zip": "^0.4.16",
