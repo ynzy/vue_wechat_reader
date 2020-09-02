@@ -7,7 +7,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 // 创建 express 应用
 const app = express()
-
+console.log(process.env.NODE_ENV);
 // 解决跨域问题
 app.use(cors())
 // 解析query

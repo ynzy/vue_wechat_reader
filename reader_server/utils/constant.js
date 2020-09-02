@@ -1,8 +1,27 @@
-const { env } = require('./env')
-const UPLOAD_PATH = env === 'dev' ? 'D:/A_Personal/epub/admin-upload-ebook' : '/root/upload/admin-upload/ebook'
-const OLD_UPLOAD_URL = env === 'dev' ? 'https://yunyoushe.xyz/book/res/img' : 'https://www.yunyoushe.xyz/book/res/img'
-const UPLOAD_URL = env === 'dev' ? 'https://yunyoushe.xyz/admin-upload-ebook' : 'https://www.yunyoushe.xyz/admin-upload-ebook'
 
+let UPLOAD_PATH,
+  OLD_UPLOAD_URL,
+  UPLOAD_URL,
+  dbHost,
+  dbUser,
+  dbPwd
+if (process.env.NODE_ENV == "production") {
+  //线上接口地址
+  UPLOAD_PATH = '/root/upload/admin-upload/ebook'
+  OLD_UPLOAD_URL = 'https://yunyoushe.xyz/book/res/img'
+  UPLOAD_URL = 'https://yunyoushe.xyz/admin-upload-ebook'
+  dbHost = '101.37.171.186'
+  dbUser = 'root'
+  dbPwd = '123456'
+} else {
+  //测试环境接口地址
+  UPLOAD_PATH = 'D:/A_Personal/epub/admin-upload-ebook'
+  OLD_UPLOAD_URL = 'https://yunyoushe.xyz/book/res/img'
+  UPLOAD_URL = 'https://yunyoushe.xyz/admin-upload-ebook'
+  dbHost = 'localhost'
+  dbUser = 'root'
+  dbPwd = '123456'
+}
 module.exports = {
   CODE_ERROR: -1,
   CODE_TOKEN_EXPIRED: -2,
@@ -16,7 +35,10 @@ module.exports = {
   MIME_TYPE_EPUB: 'application/epub',  // 上传电子书类型
   OLD_UPLOAD_URL,
   UPLOAD_URL,
-  UPDATE_TYPE_FROM_WEB: 1
+  UPDATE_TYPE_FROM_WEB: 1,
+  dbHost,
+  dbPwd,
+  dbUser,
 }
 
 // let reg = /^application\/epub\+zip|application\/epub$/

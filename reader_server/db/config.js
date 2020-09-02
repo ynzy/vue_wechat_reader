@@ -1,6 +1,8 @@
+const { dbHost, dbUser, dbPwd } = require("../utils/constant")
+
 module.exports = {
-  host: 'localhost',
-  user: 'root',
-  password: '123456',
+  host: dbHost,
+  user: dbUser,
+  password: dbPwd,
   database: 'book'
 }
