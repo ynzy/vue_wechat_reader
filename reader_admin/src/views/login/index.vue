@@ -9,7 +9,7 @@
       label-position="left"
     >
       <div class="title-container">
-        <h3 class="title">小慕读书</h3>
+        <h3 class="title">读书管理后天</h3>
       </div>
       <el-form-item prop="username">
         <span class="svg-container">
@@ -23,7 +23,7 @@
           type="text"
           tabindex="1"
           autocomplete="on"
-        ></el-input>
+        />
       </el-form-item>
       <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
         <el-form-item prop="password">
