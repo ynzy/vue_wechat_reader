@@ -10,7 +10,7 @@ if (process.env.NODE_ENV == "prod") {
   UPLOAD_PATH = '/root/upload/admin-upload/ebook'
   OLD_UPLOAD_URL = 'https://yunyoushe.xyz/book/res/img'
   UPLOAD_URL = 'https://yunyoushe.xyz/admin-upload-ebook'
-  dbHost = '101.37.171.186'
+  dbHost = 'localhost'
   dbUser = 'root'
   dbPwd = ''
 } else {
@@ -18,9 +18,9 @@ if (process.env.NODE_ENV == "prod") {
   UPLOAD_PATH = 'D:/A_Personal/epub/admin-upload-ebook'
   OLD_UPLOAD_URL = 'https://yunyoushe.xyz/book/res/img'
   UPLOAD_URL = 'https://yunyoushe.xyz/admin-upload-ebook'
-  dbHost = 'localhost'
+  dbHost = '101.37.171.186'
   dbUser = 'root'
-  dbPwd = ''
+  dbPwd = '123456'
 }
 module.exports = {
   CODE_ERROR: -1,
