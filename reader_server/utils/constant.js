@@ -8,8 +8,8 @@ let UPLOAD_PATH,
 if (process.env.NODE_ENV == "prod") {
   //线上接口地址
   UPLOAD_PATH = '/root/nginx/upload/admin-upload/ebook'
-  OLD_UPLOAD_URL = 'http://yunyoushe.xyz/book/res/img'
-  UPLOAD_URL = 'http://yunyoushe.xyz/admin-upload/ebook'
+  OLD_UPLOAD_URL = 'http://zhangyufan.xyz/book/res/img'
+  UPLOAD_URL = 'http://zhangyufan.xyz/admin-upload/ebook'
   dbHost = 'localhost'
   dbUser = 'root'
   dbPwd = ''
