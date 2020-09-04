@@ -20,13 +20,9 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { mapGetters } from 'vuex'
-// import { ebookMixin } from '@/utils/mixin'
+import { ebookMixin } from '@/utils/mixin'
 export default {
-  // mixins: [ebookMixin],
-  computed: {
-    ...mapGetters(['menuVisible'])
-  },
+  mixins: [ebookMixin],
   methods: {
     back() {
       this.$router.go(-1)

@@ -5,31 +5,36 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { ebookMixin } from '@/utils/mixin'
 import Epub from 'epubjs'
 import { uploadUrl } from '@/config'
+import { mapActions } from 'vuex'
 // global.epub = Epub
 export default {
-  computed: {
-    ...mapGetters(['fileName', 'menuVisible'])
-  },
+  mixins: [ebookMixin],
   mounted() {
     // History|2017_Book_InterdisciplinaryPerspectivesO
     const fileName = this.$route.params.fileName.split('|').join('/')
-    this.$store.dispatch('setFileName', fileName).then(() => {
+    console.log(this.setFileName(fileName))
+    this.setFileName(fileName).then(() => {
       const epubPath = `${uploadUrl}${fileName}.epub` // 电子书路径
       this.initEpub(epubPath)
     })
   },
   methods: {
     prevPage() {
+      this.hideTileAndMenu()
       this.rendition?.prev()
     },
     nextPage() {
+      this.hideTileAndMenu()
       this.rendition?.next()
     },
-    showTitleAndMenu() {
-      this.$store.dispatch('setMenuVisible', !this.menuVisible)
+    toggleTitleAndMenu() {
+      this.setMenuVisible(!this.menuVisible)
+    },
+    hideTileAndMenu() {
+      this.setMenuVisible(false)
     },
     initEpub(url) {
       // 解析电子书
@@ -65,7 +70,7 @@ export default {
           this.nextPage()
         } else {
           // 显示屏幕中间的内容(显示菜单)
-          this.showTitleAndMenu()
+          this.toggleTitleAndMenu()
         }
         // event.preventDefault() // 阻止默认行为
         // event.stopPropagation() // 阻止冒泡

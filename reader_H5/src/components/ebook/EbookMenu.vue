@@ -37,8 +37,7 @@
 // import EbookSpeakingIcon from './EbookSpeakingIcon'
 
 // import EbookSlide from './EbookSlide'
-// import { ebookMixin } from '@/utils/mixin'
-import { mapGetters } from 'vuex'
+import { ebookMixin } from '@/utils/mixin'
 
 export default {
   data(){
@@ -49,10 +48,7 @@ export default {
   methods: {
     showSetting(val){}
   },
-  computed: {
-    ...mapGetters(['menuVisible'])
-  },
-  // mixins: [ebookMixin],
+  mixins: [ebookMixin],
   /* components: {
     EbookSettingFontPopup,
     EbookSlide,
