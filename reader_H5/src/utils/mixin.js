@@ -1,8 +1,15 @@
 import { mapGetters, mapActions } from 'vuex'
+import { FONT_SIZE_LIST, FONT_FAMILY, themeList, getReadTimeByMinute, showBookDetail } from './book'
 
 
 
 export const ebookMixin = {
+  data() {
+    return {
+      fontSizeList: FONT_SIZE_LIST,
+      fontFamily: FONT_FAMILY
+    }
+  },
   computed: {
     ...mapGetters([
       'fileName',
@@ -51,11 +58,24 @@ export const ebookMixin = {
       'setSpeakingIconBottom'
     ]),
     setFontSize(fontSize) {
-      this.setDefaultFontSize(fontSize)
-      this.currentBook.rendition.themes.fontSize(fontSize)
+      this.setDefaultFontSize(fontSize).then(() => {
+        this.currentBook.rendition.themes.fontSize(this.defaultFontSize + 'px')
+      })
     },
     showFontFamilySetting() {
-      console.log(1);
+      this.setFontFamilyVisible(true)
+    },
+    hideFontFamilySetting() {
+      this.setFontFamilyVisible(false)
+    },
+    setFontFamily(font) {
+      this.setDefaultFontFamily(font).then(() => {
+        if (font === 'Default') {
+          this.currentBook.rendition.themes.font('Times New Roman')
+        } else {
+          this.currentBook.rendition.themes.font(font)
+        }
+      })
     }
   }
 }

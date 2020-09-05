@@ -9,6 +9,7 @@ import { ebookMixin } from '@/utils/mixin'
 import Epub from 'epubjs'
 import { uploadUrl } from '@/config'
 import { mapActions } from 'vuex'
+import { resUrl } from '@/config'
 // global.epub = Epub
 export default {
   mixins: [ebookMixin],
@@ -32,12 +33,14 @@ export default {
     toggleTitleAndMenu() {
       if (this.menuVisible) {
         this.setSettingVisible(-1)
+        this.setFontFamilyVisible(false)
       }
       this.setMenuVisible(!this.menuVisible)
     },
     hideTileAndMenu() {
       this.setMenuVisible(false)
       this.setSettingVisible(-1)
+      this.setFontFamilyVisible(false)
     },
     initEpub(url) {
       // 解析电子书
@@ -77,7 +80,17 @@ export default {
           this.toggleTitleAndMenu()
         }
         // event.preventDefault() // 阻止默认行为
-        // event.stopPropagation() // 阻止冒泡
+        event.stopPropagation() // 阻止冒泡
+      })
+      this.rendition.hooks.content.register(contents => {
+        Promise.all([
+          contents.addStylesheet(`${resUrl}/fonts/daysOne.css`),
+          contents.addStylesheet(`${resUrl}/fonts/cabin.css`),
+          contents.addStylesheet(`${resUrl}/fonts/montserrat.css`),
+          contents.addStylesheet(`${resUrl}/fonts/tangerine.css`)
+        ]).then(() => {
+          console.log('字体加载完')
+        })
       })
     }
   }

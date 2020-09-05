@@ -40,14 +40,12 @@
 
 <script type="text/ecmascript-6">
 import { ebookMixin } from '@/utils/mixin'
-import { FONT_SIZE_LIST } from "@/utils/book";
 export default {
   mixins: [ebookMixin],
   data() {
     return {
       styleLeft: {},
       styleRight: {},
-      fontSizeList: FONT_SIZE_LIST
     }
   },
   watch: {
