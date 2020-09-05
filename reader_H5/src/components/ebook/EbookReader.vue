@@ -15,7 +15,6 @@ export default {
   mounted() {
     // History|2017_Book_InterdisciplinaryPerspectivesO
     const fileName = this.$route.params.fileName.split('|').join('/')
-    console.log(this.setFileName(fileName))
     this.setFileName(fileName).then(() => {
       const epubPath = `${uploadUrl}${fileName}.epub` // 电子书路径
       this.initEpub(epubPath)
@@ -31,15 +30,20 @@ export default {
       this.rendition?.next()
     },
     toggleTitleAndMenu() {
+      if (this.menuVisible) {
+        this.setSettingVisible(-1)
+      }
       this.setMenuVisible(!this.menuVisible)
     },
     hideTileAndMenu() {
       this.setMenuVisible(false)
+      this.setSettingVisible(-1)
     },
     initEpub(url) {
       // 解析电子书
       this.book = new Epub(url)
-      console.log(this.book)
+      // console.log(this.book)
+      this.setCurrentBook(this.book)
       // 渲染电子书
       this.rendition = this.book.renderTo('read', {
         width: innerWidth,
@@ -60,7 +64,7 @@ export default {
         const offsetX = event.changedTouches[0].clientX - this.touchStartX
         // 手势移入移出的时间差
         const time = event.timeStamp - this.touchStartTime
-        console.log(offsetX, time)
+        // console.log(offsetX, time)
         // 假定滑动事件小于500毫秒
         if (time < 500 && offsetX > 40) {
           // 向右滑动,上一页

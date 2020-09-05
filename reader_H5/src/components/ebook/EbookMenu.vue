@@ -3,8 +3,8 @@
     <transition name="slide-up">
       <div
         class="menu-wrapper"
-        :class="{ 'hide-box-shadow': settingVisible >= 0 || !menuVisible }"
         v-show="menuVisible"
+        :class="{ 'hide-box-shadow': settingVisible >= 0 || !menuVisible }"
       >
         <div class="icon-wrapper" :class="{ selected: settingVisible === 3 }">
           <span class="iconfont iconmenu" @click="showSetting(3)"></span>
@@ -20,7 +20,7 @@
         </div>
       </div>
     </transition>
-    <!-- <ebook-setting-font></ebook-setting-font> -->
+    <ebook-setting-font></ebook-setting-font>
     <!-- <ebook-setting-font-popup></ebook-setting-font-popup> -->
     <!-- <ebook-setting-theme></ebook-setting-theme> -->
     <!-- <ebook-setting-progress></ebook-setting-progress> -->
@@ -30,7 +30,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-// import EbookSettingFont from './EbookSettingFont'
+import EbookSettingFont from './EbookSettingFont'
 // import EbookSettingFontPopup from './EbookSettingFontPopup'
 // import EbookSettingTheme from './EbookSettingTheme'
 // import EbookSettingProgress from './EbookSettingProgress'
@@ -40,23 +40,20 @@
 import { ebookMixin } from '@/utils/mixin'
 
 export default {
-  data(){
-    return{
-      settingVisible:-1,
+  methods: {
+    showSetting(val){
+      this.setSettingVisible(val)
     }
   },
-  methods: {
-    showSetting(val){}
-  },
   mixins: [ebookMixin],
-  /* components: {
-    EbookSettingFontPopup,
-    EbookSlide,
-    EbookSettingProgress,
+  components: {
+    // EbookSettingFontPopup,
+    // EbookSlide,
+    // EbookSettingProgress,
     EbookSettingFont,
-    EbookSettingTheme,
-    EbookSpeakingIcon
-  } */
+    // EbookSettingTheme,
+    // EbookSpeakingIcon
+  }
 }
 </script>
 
@@ -71,6 +68,7 @@ export default {
   height: 48px;
   box-shadow: 0 -8px 8px rgba(0, 0, 0, 0.15);
   font-size: 22px;
+  background: #fff;
   &.hide-box-shadow {
     box-shadow: none;
   }

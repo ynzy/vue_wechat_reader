@@ -1,10 +1,61 @@
 import { mapGetters, mapActions } from 'vuex'
 
+
+
 export const ebookMixin = {
   computed: {
-    ...mapGetters(['fileName', 'menuVisible'])
+    ...mapGetters([
+      'fileName',
+      'menuVisible',
+      'settingVisible',
+      'defaultFontSize',
+      'defaultFontFamily',
+      'fontFamilyVisible',
+      'defaultTheme',
+      'bookAvailable',
+      'progress',
+      'section',
+      'isPaginating',
+      'currentBook',
+      'navigation',
+      'cover',
+      'metadata',
+      'paginate',
+      'pagelist',
+      'offsetY',
+      'isBookmark',
+      'speakingIconBottom'
+    ])
   },
   methods: {
-    ...mapActions(['setMenuVisible', 'setFileName'])
+    ...mapActions([
+      'setFileName',
+      'setMenuVisible',
+      'setSettingVisible',
+      'setDefaultFontSize',
+      'setDefaultFontFamily',
+      'setFontFamilyVisible',
+      'setDefaultTheme',
+      'setBookAvailable',
+      'setProgress',
+      'setSection',
+      'setIsPaginating',
+      'setCurrentBook',
+      'setNavigation',
+      'setCover',
+      'setMetadata',
+      'setPaginate',
+      'setPagelist',
+      'setOffsetY',
+      'setIsBookmark',
+      'setSpeakingIconBottom'
+    ]),
+    setFontSize(fontSize) {
+      this.setDefaultFontSize(fontSize)
+      this.currentBook.rendition.themes.fontSize(fontSize)
+    },
+    showFontFamilySetting() {
+      console.log(1);
+    }
   }
 }
