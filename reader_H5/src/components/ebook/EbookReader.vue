@@ -10,11 +10,13 @@ import Epub from 'epubjs'
 import { uploadUrl } from '@/config'
 import { mapActions } from 'vuex'
 import { resUrl } from '@/config'
+import * as Storage from '@/utils/localStorage'
+
 // global.epub = Epub
 export default {
   mixins: [ebookMixin],
   mounted() {
-    // History|2017_Book_InterdisciplinaryPerspectivesO
+    // Biomedicine|2015_Book_InnovativeMedicine
     const fileName = this.$route.params.fileName.split('|').join('/')
     this.setFileName(fileName).then(() => {
       const epubPath = `${uploadUrl}${fileName}.epub` // 电子书路径
@@ -42,6 +44,24 @@ export default {
       this.setSettingVisible(-1)
       this.setFontFamilyVisible(false)
     },
+    initFontSize() {
+      let fontSize = Storage.getFontSize(this.fileName)
+      if (!fontSize) {
+        Storage.saveFontSize(this.fileName, this.defaultFontSize)
+      } else {
+        this.rendition.themes.fontSize(fontSize)
+        this.setDefaultFontSize(fontSize)
+      }
+    },
+    initFontFamily() {
+      let font = Storage.getFontFamily(this.fileName)
+      if (!font) {
+        Storage.saveFontFamily(this.fileName, this.defaultFontFamily)
+      } else {
+        this.rendition.themes.font(font)
+        this.setDefaultFontFamily(font)
+      }
+    },
     initEpub(url) {
       // 解析电子书
       this.book = new Epub(url)
@@ -54,7 +74,10 @@ export default {
         method: 'default' // 兼容微信浏览器
       })
       console.log(this.rendition)
-      this.rendition.display()
+      this.rendition.display().then(() => {
+        this.initFontSize()
+        this.initFontFamily()
+      })
       // 监听滑动效果
       this.rendition.on('touchstart', event => {
         // 当前一个手指点击屏幕X轴的位置

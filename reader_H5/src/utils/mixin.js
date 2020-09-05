@@ -1,5 +1,6 @@
 import { mapGetters, mapActions } from 'vuex'
 import { FONT_SIZE_LIST, FONT_FAMILY, themeList, getReadTimeByMinute, showBookDetail } from './book'
+import * as Storage from './localStorage'
 
 
 
@@ -59,6 +60,7 @@ export const ebookMixin = {
     ]),
     setFontSize(fontSize) {
       this.setDefaultFontSize(fontSize).then(() => {
+        Storage.saveFontSize(this.fileName, fontSize)
         this.currentBook.rendition.themes.fontSize(this.defaultFontSize + 'px')
       })
     },
@@ -70,6 +72,7 @@ export const ebookMixin = {
     },
     setFontFamily(font) {
       this.setDefaultFontFamily(font).then(() => {
+        Storage.saveFontFamily(this.fileName, font)
         if (font === 'Default') {
           this.currentBook.rendition.themes.font('Times New Roman')
         } else {
