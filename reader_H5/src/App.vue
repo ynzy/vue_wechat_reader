@@ -9,5 +9,6 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: #7d8188;
 }
 </style>

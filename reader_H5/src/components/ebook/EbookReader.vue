@@ -9,8 +9,8 @@ import { ebookMixin } from '@/utils/mixin'
 import Epub from 'epubjs'
 import { uploadUrl } from '@/config'
 import { mapActions } from 'vuex'
-import { resUrl } from '@/config'
 import * as Storage from '@/utils/localStorage'
+import { addCss } from '@/utils/book'
 
 // global.epub = Epub
 export default {
@@ -19,7 +19,7 @@ export default {
     // Biomedicine|2015_Book_InnovativeMedicine
     const fileName = this.$route.params.fileName.split('|').join('/')
     this.setFileName(fileName).then(() => {
-      const epubPath = `${uploadUrl}${fileName}.epub` // 电子书路径
+      const epubPath = `${uploadUrl}/epub/${fileName}.epub` // 电子书路径
       this.initEpub(epubPath)
     })
   },
@@ -62,6 +62,21 @@ export default {
         this.setDefaultFontFamily(font)
       }
     },
+    initTheme() {
+      let defaultTheme = Storage.getTheme(this.fileName)
+      console.log(defaultTheme)
+      if (!defaultTheme) {
+        defaultTheme = this.themeList[0].name
+        Storage.saveTheme(this.fileName, defaultTheme)
+      }
+      this.setDefaultTheme(defaultTheme)
+      // return defaultTheme
+      this.themeList.forEach(theme => {
+        this.rendition.themes.register(theme.name, theme.style)
+      })
+      this.rendition.themes.select(defaultTheme)
+    },
+
     initEpub(url) {
       // 解析电子书
       this.book = new Epub(url)
@@ -75,8 +90,10 @@ export default {
       })
       console.log(this.rendition)
       this.rendition.display().then(() => {
+        this.initTheme()
         this.initFontSize()
         this.initFontFamily()
+        this.initGlobalStyle()
       })
       // 监听滑动效果
       this.rendition.on('touchstart', event => {
@@ -107,10 +124,10 @@ export default {
       })
       this.rendition.hooks.content.register(contents => {
         Promise.all([
-          contents.addStylesheet(`${resUrl}/fonts/daysOne.css`),
-          contents.addStylesheet(`${resUrl}/fonts/cabin.css`),
-          contents.addStylesheet(`${resUrl}/fonts/montserrat.css`),
-          contents.addStylesheet(`${resUrl}/fonts/tangerine.css`)
+          contents.addStylesheet(`${uploadUrl}/fonts/daysOne.css`),
+          contents.addStylesheet(`${uploadUrl}/fonts/cabin.css`),
+          contents.addStylesheet(`${uploadUrl}/fonts/montserrat.css`),
+          contents.addStylesheet(`${uploadUrl}/fonts/tangerine.css`)
         ]).then(() => {
           console.log('字体加载完')
         })

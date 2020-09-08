@@ -2,6 +2,7 @@ import Storage from 'web-storage-cache'
 
 const localStorage = new Storage()
 
+// 本地存储
 export function getLocalStorage(key) {
   return localStorage.get(key)
 }
@@ -25,7 +26,7 @@ export function getHome() {
 export function saveHome(home) {
   return setLocalStorage('home', home, 1800)
 }
-
+// 语言设置
 export function getLocale() {
   return getLocalStorage('locale')
 }
@@ -89,7 +90,7 @@ export function getCover(fileName) {
 export function saveCover(fileName, cover) {
   setBookObject(fileName, 'cover', cover)
 }
-
+// 字体相关设置存储
 export function getFontFamily(fileName) {
   return getBookObject(fileName, 'fontFamily')
 }
@@ -97,7 +98,7 @@ export function getFontFamily(fileName) {
 export function saveFontFamily(fileName, fontFamily) {
   setBookObject(fileName, 'fontFamily', fontFamily)
 }
-
+// 主题相关设置存储
 export function getTheme(fileName) {
   return getBookObject(fileName, 'theme')
 }
@@ -105,7 +106,7 @@ export function getTheme(fileName) {
 export function saveTheme(fileName, theme) {
   setBookObject(fileName, 'theme', theme)
 }
-
+// 字号相关设置存储
 export function getFontSize(fileName) {
   return getBookObject(fileName, 'fontSize')
 }
@@ -114,6 +115,7 @@ export function saveFontSize(fileName, fontSize) {
   setBookObject(fileName, 'fontSize', fontSize)
 }
 
+// 电子书相关存储，存储每一本电子书的设置
 export function getBookObject(fileName, key) {
   if (getLocalStorage(`${fileName}-info`)) {
     return getLocalStorage(`${fileName}-info`)[key]

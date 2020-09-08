@@ -22,7 +22,7 @@
     </transition>
     <ebook-setting-font></ebook-setting-font>
     <ebook-setting-font-popup></ebook-setting-font-popup>
-    <!-- <ebook-setting-theme></ebook-setting-theme> -->
+    <ebook-setting-theme></ebook-setting-theme>
     <!-- <ebook-setting-progress></ebook-setting-progress> -->
     <!-- <ebook-slide></ebook-slide> -->
     <!-- <ebook-speaking-icon></ebook-speaking-icon> -->
@@ -32,7 +32,7 @@
 <script type="text/ecmascript-6">
 import EbookSettingFont from './EbookSettingFont'
 import EbookSettingFontPopup from './EbookSettingFontPopup'
-// import EbookSettingTheme from './EbookSettingTheme'
+import EbookSettingTheme from './EbookSettingTheme'
 // import EbookSettingProgress from './EbookSettingProgress'
 // import EbookSpeakingIcon from './EbookSpeakingIcon'
 
@@ -49,9 +49,9 @@ export default {
   components: {
     EbookSettingFont,
     EbookSettingFontPopup,
+    EbookSettingTheme,
     // EbookSlide,
     // EbookSettingProgress,
-    // EbookSettingTheme,
     // EbookSpeakingIcon
   }
 }
@@ -68,7 +68,6 @@ export default {
   height: 48px;
   box-shadow: 0 -8px 8px rgba(0, 0, 0, 0.15);
   font-size: 22px;
-  background: #fff;
   &.hide-box-shadow {
     box-shadow: none;
   }

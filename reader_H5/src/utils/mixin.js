@@ -1,6 +1,7 @@
 import { mapGetters, mapActions } from 'vuex'
-import { FONT_SIZE_LIST, FONT_FAMILY, themeList, getReadTimeByMinute, showBookDetail } from './book'
+import { FONT_SIZE_LIST, FONT_FAMILY, themeList, getReadTimeByMinute, showBookDetail, addCss, removeAllCss } from './book'
 import * as Storage from './localStorage'
+import { uploadUrl } from '@/config/env.development'
 
 
 
@@ -33,7 +34,10 @@ export const ebookMixin = {
       'offsetY',
       'isBookmark',
       'speakingIconBottom'
-    ])
+    ]),
+    themeList() {
+      return themeList(this)
+    },
   },
   methods: {
     ...mapActions([
@@ -79,6 +83,35 @@ export const ebookMixin = {
           this.currentBook.rendition.themes.font(font)
         }
       })
-    }
+    },
+    setTheme(theme) {
+      this.setDefaultTheme(theme).then(() => {
+        // this.switchTheme()
+        this.initGlobalStyle()
+        this.currentBook.rendition.themes.select(this.defaultTheme)
+        Storage.saveTheme(this.fileName, theme)
+      })
+    },
+    initGlobalStyle() {
+      removeAllCss()
+      switch (this.defaultTheme) {
+        case 'Default':
+          addCss(`${uploadUrl}/theme/theme_default.css`)
+          break
+        case 'Eye':
+          addCss(`${uploadUrl}/theme/theme_eye.css`)
+          break
+        case 'Gold':
+          addCss(`${uploadUrl}/theme/theme_gold.css`)
+          break
+        case 'Night':
+          addCss(`${uploadUrl}/theme/theme_night.css`)
+          break
+        default:
+          this.setDefaultTheme('Default')
+          addCss(`${process.env.VUE_APP_RES_URL}/theme/theme_default.css`)
+          break
+      }
+    },
   }
 }
