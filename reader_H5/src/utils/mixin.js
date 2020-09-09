@@ -38,6 +38,15 @@ export const ebookMixin = {
     themeList() {
       return themeList(this)
     },
+    getSectionName() {
+      if (this.section) {
+        const section = this.currentBook.section(this.section)
+        if (section && section.href && this.currentBook && this.currentBook.navigation) {
+          return this.currentBook.navigation.get(section.href)?.label
+          // return this.navigation[this.section].label
+        }
+      }
+    }
   },
   methods: {
     ...mapActions([
@@ -113,5 +122,78 @@ export const ebookMixin = {
           break
       }
     },
+    getReadTime() {
+      return this.$t('book.haveRead').replace('$1', getReadTimeByMinute(this.fileName))
+    },
+    // 进度条章节显示
+    displayProgress() {
+      // 通过百分比获取定位
+      const cfi = this.currentBook.locations.cfiFromPercentage(this.progress / 100)
+      // 渲染获取到的章节
+      this.display(cfi)
+    },
+    //  上一章下一章，章节显示
+    displaySection(cb) {
+      const section = this.currentBook.section(this.section)
+      if (section && section.href) {
+        this.display(section.href, () => {
+          if (cb) cb()
+        })
+      }
+    },
+    // 刷新章节定位
+    refreshLocation() {
+      const currentLocation = this.currentBook.rendition.currentLocation()
+      const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi)
+      this.setProgress(Math.floor(progress * 100))
+      const cfistart = currentLocation.start.cfi
+      Storage.saveLocation(this.fileName, cfistart)
+      this.setSection(currentLocation.start.index)
+      return
+      if (currentLocation.start && currentLocation.start.index) {
+        this.setSection(currentLocation.start.index)
+        const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi)
+        this.setProgress(Math.floor(progress * 100))
+        if (this.pagelist) {
+          if (currentLocation.start.location <= 0) {
+            this.setPaginate('')
+          } else {
+            this.setPaginate(currentLocation.start.location + ' / ' + this.pagelist.length)
+          }
+        } else {
+          this.setPaginate('')
+        }
+        const cfistart = currentLocation.start.cfi
+        const bookmark = Storage.getBookmark(this.fileName)
+        if (bookmark) {
+          if (bookmark.some(item => item.cfi === cfistart)) {
+            this.setIsBookmark(true)
+          } else {
+            this.setIsBookmark(false)
+          }
+        } else {
+          this.setIsBookmark(false)
+        }
+        Storage.saveLocation(this.fileName, cfistart)
+      }
+    },
+    /**
+     * 自定义rendition.display方法
+     * target 控制显示的页面
+     */
+    display(target, cb) {
+      if (target) {
+        this.currentBook.rendition.display(target).then(() => {
+          this.refreshLocation()
+          cb && cb()
+        })
+      } else {
+        this.currentBook.rendition.display().then(() => {
+          this.refreshLocation()
+          cb && cb()
+
+        })
+      }
+    }
   }
 }

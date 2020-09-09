@@ -1,5 +1,7 @@
 import { realPx } from "./utils"
 import { uploadUrl } from "@/config/env.development"
+import { getReadTime, getLocalStorage, setLocalStorage, removeLocalStorage, removeLocalForage } from './localStorage'
+
 
 export const FONT_SIZE_LIST = [
   { fontSize: 12 },
@@ -20,6 +22,8 @@ export const FONT_FAMILY = [
   { font: 'Tangerine' }
 ]
 
+
+// 主题列表
 export const themeList = function (vue) {
   return [
     {
@@ -123,4 +127,13 @@ export const removeAllCss = function () {
   removeCss(`${uploadUrl}/theme/theme_eye.css`)
   removeCss(`${uploadUrl}/theme/theme_gold.css`)
   removeCss(`${uploadUrl}/theme/theme_night.css`)
+}
+
+// 获取阅读时间
+export function getReadTimeByMinute(fileName) {
+  if (!getReadTime(fileName)) {
+    return 0
+  } else {
+    return Math.ceil(getReadTime(fileName) / 60)
+  }
 }

@@ -64,7 +64,7 @@ export default {
     },
     initTheme() {
       let defaultTheme = Storage.getTheme(this.fileName)
-      console.log(defaultTheme)
+      // console.log(defaultTheme)
       if (!defaultTheme) {
         defaultTheme = this.themeList[0].name
         Storage.saveTheme(this.fileName, defaultTheme)
@@ -77,24 +77,43 @@ export default {
       this.rendition.themes.select(defaultTheme)
     },
 
-    initEpub(url) {
-      // 解析电子书
-      this.book = new Epub(url)
-      // console.log(this.book)
-      this.setCurrentBook(this.book)
+    // 初始化渲染
+    initRendition() {
       // 渲染电子书
       this.rendition = this.book.renderTo('read', {
         width: innerWidth,
         height: innerHeight,
         method: 'default' // 兼容微信浏览器
       })
-      console.log(this.rendition)
-      this.rendition.display().then(() => {
+      // console.log(this.rendition)
+      /* this.rendition.display().then(() => {
+        this.initTheme()
+        this.initFontSize()
+        this.initFontFamily()
+        this.initGlobalStyle()
+        this.refreshLocation()
+      }) */
+      // 获取定位章节进行页面显示
+      const location = Storage.getLocation(this.fileName)
+      this.display(location, () => {
         this.initTheme()
         this.initFontSize()
         this.initFontFamily()
         this.initGlobalStyle()
       })
+      this.rendition.hooks.content.register(contents => {
+        Promise.all([
+          contents.addStylesheet(`${uploadUrl}/fonts/daysOne.css`),
+          contents.addStylesheet(`${uploadUrl}/fonts/cabin.css`),
+          contents.addStylesheet(`${uploadUrl}/fonts/montserrat.css`),
+          contents.addStylesheet(`${uploadUrl}/fonts/tangerine.css`)
+        ]).then(() => {
+          // console.log('字体加载完')
+        })
+      })
+    },
+    // 初始化手势
+    initGesture() {
       // 监听滑动效果
       this.rendition.on('touchstart', event => {
         // 当前一个手指点击屏幕X轴的位置
@@ -122,16 +141,26 @@ export default {
         // event.preventDefault() // 阻止默认行为
         event.stopPropagation() // 阻止冒泡
       })
-      this.rendition.hooks.content.register(contents => {
-        Promise.all([
-          contents.addStylesheet(`${uploadUrl}/fonts/daysOne.css`),
-          contents.addStylesheet(`${uploadUrl}/fonts/cabin.css`),
-          contents.addStylesheet(`${uploadUrl}/fonts/montserrat.css`),
-          contents.addStylesheet(`${uploadUrl}/fonts/tangerine.css`)
-        ]).then(() => {
-          console.log('字体加载完')
+    },
+    initEpub(url) {
+      // 解析电子书
+      this.book = new Epub(url)
+      // console.log(this.book)
+      this.setCurrentBook(this.book)
+      this.initRendition()
+      this.initGesture()
+      this.book.ready
+        .then(() => {
+          // 简易的分页算法
+          return this.book.locations.generate(
+            750 * (window.innerWidth / 750) * (Storage.getFontSize(this.fileName) / 16)
+          )
         })
-      })
+        .then(locations => {
+          // console.log(locations)
+          this.setBookAvailable(true)
+          this.refreshLocation()
+        })
     }
   }
 }
