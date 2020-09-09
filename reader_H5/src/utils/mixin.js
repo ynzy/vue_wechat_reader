@@ -39,13 +39,13 @@ export const ebookMixin = {
       return themeList(this)
     },
     getSectionName() {
-      if (this.section) {
-        const section = this.currentBook.section(this.section)
-        if (section && section.href && this.currentBook && this.currentBook.navigation) {
-          return this.currentBook.navigation.get(section.href)?.label
-          // return this.navigation[this.section].label
-        }
-      }
+      // if (this.section) {
+      //   const section = this.currentBook.section(this.section)
+      //   if (section && section.href && this.currentBook && this.currentBook.navigation) {
+      //     return this.currentBook.navigation.get(section.href)?.label
+      //   }
+      // }
+      return this.section ? this.navigation[this.section].label : '';
     }
   },
   methods: {
@@ -144,11 +144,13 @@ export const ebookMixin = {
     // 刷新章节定位
     refreshLocation() {
       const currentLocation = this.currentBook.rendition.currentLocation()
-      const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi)
-      this.setProgress(Math.floor(progress * 100))
-      const cfistart = currentLocation.start.cfi
-      Storage.saveLocation(this.fileName, cfistart)
-      this.setSection(currentLocation.start.index)
+      if (currentLocation?.start) {
+        const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi)
+        this.setProgress(Math.floor(progress * 100))
+        const cfistart = currentLocation.start.cfi
+        Storage.saveLocation(this.fileName, cfistart)
+        this.setSection(currentLocation.start.index)
+      }
       return
       if (currentLocation.start && currentLocation.start.index) {
         this.setSection(currentLocation.start.index)
@@ -191,9 +193,13 @@ export const ebookMixin = {
         this.currentBook.rendition.display().then(() => {
           this.refreshLocation()
           cb && cb()
-
         })
       }
-    }
+    },
+    hideTileAndMenu() {
+      this.setMenuVisible(false)
+      this.setSettingVisible(-1)
+      this.setFontFamilyVisible(false)
+    },
   }
 }

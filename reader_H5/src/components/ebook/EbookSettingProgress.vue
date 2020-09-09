@@ -71,13 +71,11 @@ export default {
       }
     },
     onProgressInput(progress) {
-      console.log(progress);
       this.setProgress(progress).then(() => {
         this.updateProgressBg()
       })
     },
     onProgressChange(progress) {
-      console.log(progress);
       this.setProgress(progress).then(() => {
         this.updateProgressBg()
         this.displayProgress()

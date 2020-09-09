@@ -17,11 +17,14 @@ export default {
   mixins: [ebookMixin],
   mounted() {
     // Biomedicine|2015_Book_InnovativeMedicine
-    const fileName = this.$route.params.fileName.split('|').join('/')
+    // http://192.168.1.122:8080/#/ebook/Biomedicine|2015_Book_InnovativeMedicine
+    /* const fileName = this.$route.params.fileName.split('|').join('/')
     this.setFileName(fileName).then(() => {
       const epubPath = `${uploadUrl}/epub/${fileName}.epub` // 电子书路径
       this.initEpub(epubPath)
-    })
+    }) */
+    let epubPath = 'http://192.168.1.122:8080/2015.epub' //!静态电子书，测试
+    this.initEpub(epubPath)
   },
   methods: {
     prevPage() {
@@ -38,11 +41,6 @@ export default {
         this.setFontFamilyVisible(false)
       }
       this.setMenuVisible(!this.menuVisible)
-    },
-    hideTileAndMenu() {
-      this.setMenuVisible(false)
-      this.setSettingVisible(-1)
-      this.setFontFamilyVisible(false)
     },
     initFontSize() {
       let fontSize = Storage.getFontSize(this.fileName)
@@ -142,13 +140,57 @@ export default {
         event.stopPropagation() // 阻止冒泡
       })
     },
+    // 解析电子书基本信息
+    parseBook() {
+      this.book.loaded.metadata.then(metadata => {
+        this.setMetadata(metadata)
+        Storage.saveMetadata(this.fileName, metadata)
+      })
+      // 获取背景图
+      this.book.loaded.cover.then(cover => {
+        this.book.archive.createUrl(cover).then(url => {
+          this.setCover(url)
+        })
+      })
+      this.book.loaded.navigation.then(nav => {
+        console.log(nav)
+        const navItem = (function flatten(arr) {
+          return [].concat(...arr.map(v => [v, ...flatten(v.subitems)]))
+        })(nav.toc)
+
+        // function find(item, v = 0) {
+        //   const parent = navItem.filter(it => it.id === item.parent)[0]
+        //   return !item.parent ? v : (parent ? find(parent, ++v) : v)
+        // }
+        function find(item, level = 0) {
+          if (!item.parent) {
+            return level
+          } else {
+            return find(navItem.filter(parentItem => parentItem.id === item.parent)[0], ++level)
+          }
+        }
+
+        navItem.forEach(item => {
+          item.level = find(item)
+          item.total = 0
+          item.pagelist = []
+          if (item.href.match(/^(.*)\.html$/)) {
+            item.idhref = item.href.match(/^(.*)\.html$/)[1]
+          } else if (item.href.match(/^(.*)\.xhtml$/)) {
+            item.idhref = item.href.match(/^(.*)\.xhtml$/)[1]
+          }
+        })
+        this.setNavigation(navItem)
+      })
+    },
     initEpub(url) {
       // 解析电子书
       this.book = new Epub(url)
-      // console.log(this.book)
+      console.log(this.book)
       this.setCurrentBook(this.book)
       this.initRendition()
       this.initGesture()
+      this.parseBook()
       this.book.ready
         .then(() => {
           // 简易的分页算法
