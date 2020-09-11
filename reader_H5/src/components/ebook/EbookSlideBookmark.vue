@@ -2,9 +2,14 @@
   <div class="ebook-slide-bookmark">
     <div class="slide-bookmark-title">{{ $t('book.bookmark') }} · {{ bookmark ? bookmark.length : 0 }}</div>
     <scroll class="slide-bookmark-list" :top="48" :bottom="48">
-      <div class="slide-bookmark-item" v-for="(item, index) in bookmark" :key="index" @click="display(item.cfi)">
+      <div
+        class="slide-bookmark-item"
+        v-for="(item, index) in bookmark"
+        :key="index"
+        @click="displayNavigation(item.cfi)"
+      >
         <div class="slide-bookmark-item-icon">
-          <div class="icon-bookmark"></div>
+          <div class="iconfont iconbookmark"></div>
         </div>
         <div class="slide-bookmark-item-text">{{ item.text }}</div>
       </div>
@@ -26,6 +31,13 @@ export default {
     return {
       bookmark: null
     }
+  },
+  methods:{
+    displayNavigation(target) {
+      this.display(target, () => {
+        this.hideTileAndMenu()
+      })
+    },
   },
   mounted() {
     this.bookmark = getBookmark(this.fileName)
@@ -53,8 +65,8 @@ export default {
       padding: 15px 0;
       box-sizing: border-box;
       .slide-bookmark-item-icon {
-        flex: 0 0 29px;
         @include flexbox(flex-start);
+        flex: 0 0 29px;
 
         .icon-bookmark {
           width: 20px;

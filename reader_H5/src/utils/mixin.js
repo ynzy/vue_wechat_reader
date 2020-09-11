@@ -143,14 +143,36 @@ export const ebookMixin = {
     },
     // 刷新章节定位
     refreshLocation() {
+      // console.log('刷新定位');
       const currentLocation = this.currentBook.rendition.currentLocation()
+      const cur_cfi = currentLocation.start.cfi
       if (currentLocation?.start) {
-        const progress = this.currentBook.locations.percentageFromCfi(currentLocation.start.cfi)
+        const progress = this.currentBook.locations.percentageFromCfi(cur_cfi)
         this.setProgress(Math.floor(progress * 100))
-        const cfistart = currentLocation.start.cfi
-        Storage.saveLocation(this.fileName, cfistart)
+        // const cfistart = currentLocation.start.cfi
+        // Storage.saveLocation(this.fileName, cfistart)
         this.setSection(currentLocation.start.index)
+
+        // 书签显示问题，只有保存了书签章节的才显示书签
+        const cfistart = cur_cfi
+        const bookmark = Storage.getBookmark(this.fileName)
+        console.group('刷新定位');
+        console.log(cfistart);
+        console.log(bookmark);
+        console.groupEnd();
+        if (bookmark) {
+          if (bookmark.some(item => item.cfi === cfistart)) {
+            // console.log('有当前书签');
+            this.setIsBookmark(true)
+          } else {
+            this.setIsBookmark(false)
+          }
+        } else {
+          this.setIsBookmark(false)
+        }
+        Storage.saveLocation(this.fileName, cfistart)
       }
+
       return
       if (currentLocation.start && currentLocation.start.index) {
         this.setSection(currentLocation.start.index)

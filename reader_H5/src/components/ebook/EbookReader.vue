@@ -1,5 +1,6 @@
 <template>
   <div class="ebook-reader">
+    <div class="ebook-reader-mask" @touchmove="move" @touchend="moveEnd" @click="onMaskClick"></div>
     <div id="read"></div>
   </div>
 </template>
@@ -24,16 +25,51 @@ export default {
       this.initEpub(epubPath)
     }) */
     let epubPath = 'http://192.168.1.122:8080/2015.epub' //!静态电子书，测试
+    this.setFileName(2015)
     this.initEpub(epubPath)
   },
   methods: {
+    move(e) {
+      let offsetY = 0
+      if (this.firstOffsetY) {
+        // 获取滑动距离 = 最后的偏移量 - 最初的偏移量
+        offsetY = e.changedTouches[0].clientY - this.firstOffsetY
+        this.setOffsetY(offsetY)
+      } else {
+        // 获取最初的偏移量(鼠标第一次按下的那个点)
+        this.firstOffsetY = e.changedTouches[0].clientY
+      }
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    moveEnd(e) {
+      // 鼠标移开之后还原偏移量
+      this.setOffsetY(0)
+      this.firstOffsetY = 0
+    },
+    onMaskClick(e) {
+      const offsetX = e.offsetX
+      const width = window.innerWidth
+      // 上一页
+      if (offsetX > 0 && offsetX < width * 0.3) {
+        this.prevPage()
+        // 下一页
+      } else if (offsetX > 0 && offsetX > width * 0.7) {
+        this.nextPage()
+        // 显示菜单
+      } else {
+        this.toggleTitleAndMenu()
+      }
+    },
     prevPage() {
-      this.hideTileAndMenu()
       this.rendition?.prev()
+      this.refreshLocation()
+      this.hideTileAndMenu()
     },
     nextPage() {
-      this.hideTileAndMenu()
       this.rendition?.next()
+      this.refreshLocation()
+      this.hideTileAndMenu()
     },
     toggleTitleAndMenu() {
       if (this.menuVisible) {
@@ -189,7 +225,7 @@ export default {
       console.log(this.book)
       this.setCurrentBook(this.book)
       this.initRendition()
-      this.initGesture()
+      // this.initGesture()
       this.parseBook()
       this.book.ready
         .then(() => {
@@ -208,4 +244,18 @@ export default {
 }
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.ebook-reader {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  .ebook-reader-mask {
+    position: absolute;
+    z-index: 150;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+</style>

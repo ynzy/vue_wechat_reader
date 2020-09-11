@@ -125,6 +125,7 @@ export function getBookObject(fileName, key) {
 }
 
 export function setBookObject(fileName, key, value) {
+  // debugger
   let book = {}
   if (getLocalStorage(`${fileName}-info`)) {
     book = getLocalStorage(`${fileName}-info`)
