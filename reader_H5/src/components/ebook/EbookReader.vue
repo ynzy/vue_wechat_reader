@@ -1,6 +1,14 @@
 <template>
   <div class="ebook-reader">
-    <div class="ebook-reader-mask" @touchmove="move" @touchend="moveEnd" @click="onMaskClick"></div>
+    <div
+      class="ebook-reader-mask"
+      @touchmove="move"
+      @touchend="moveEnd"
+      @mousedown.left="onMouseEnter"
+      @mousemove.left="onMouseMove"
+      @mouseup.left="onMouseEnd"
+      @click="onMaskClick"
+    ></div>
     <div id="read"></div>
   </div>
 </template>
@@ -29,6 +37,47 @@ export default {
     this.initEpub(epubPath)
   },
   methods: {
+    /**
+     * 1-鼠标进入
+     * 2-鼠标进入后的移动
+     * 3-鼠标从移动状态松手
+     * 4-鼠标还原
+     */
+    onMouseEnter(e) {
+      this.mouseMove = 1
+      this.mouseStartTime = e.timeStamp
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    onMouseMove(e) {
+      if (this.mouseMove === 1) {
+        this.mouseMove = 2
+      } else if (this.mouseMove === 2) {
+        let offsetY = 0
+        if (this.firstOffsetY) {
+          offsetY = e.clientY - this.firstOffsetY
+          this.$store.commit('SET_OFFSETY', offsetY)
+        } else {
+          this.firstOffsetY = e.clientY
+        }
+      }
+      e.preventDefault()
+      e.stopPropagation()
+    },
+    onMouseEnd(e) {
+      if (this.mouseMove === 2) {
+        this.$store.dispatch('setOffsetY', 0)
+        this.firstOffsetY = 0
+        this.mouseMove = 3
+      }
+      this.mouseEndTime = e.timeStamp
+      const time = this.mouseEndTime - this.mouseStartTime
+      if (time < 200) {
+        this.mouseMove = 1
+      }
+      e.preventDefault()
+      e.stopPropagation()
+    },
     move(e) {
       let offsetY = 0
       if (this.firstOffsetY) {
@@ -118,6 +167,7 @@ export default {
         width: innerWidth,
         height: innerHeight,
         method: 'default' // 兼容微信浏览器
+        // flow: 'scrolled'
       })
       // console.log(this.rendition)
       /* this.rendition.display().then(() => {
