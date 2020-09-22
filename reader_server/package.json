@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "serve": "set NODE_ENV=dev && nodemon app.js",
+    "dev": "export NODE_ENV=dev && nodemon app.js",
     "prod": "export NODE_ENV=prod && nodemon app.js"
   },
   "dependencies": {
