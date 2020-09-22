@@ -149,7 +149,7 @@ export const ebookMixin = {
         const progress = this.currentBook.locations.percentageFromCfi(cur_cfi)
         this.setProgress(Math.floor(progress * 100))
         // const cfistart = currentLocation.start.cfi
-        // Storage.saveLocation(this.fileName, cfistart)
+        Storage.saveLocation(this.fileName, cfistart)
         this.setSection(currentLocation.start.index)
 
         // 书签显示问题，只有保存了书签章节的才显示书签
@@ -169,7 +169,18 @@ export const ebookMixin = {
         } else {
           this.setIsBookmark(false)
         }
-        Storage.saveLocation(this.fileName, cfistart)
+        if (this.pagelist) {
+          const totalPage = this.pagelist.length
+          const currentPage = currentLocation.start.location
+          if (currentPage && currentPage > 0) {
+            this.setPaginate(currentPage + ' / ' + totalPage)
+          } else {
+            this.setPaginate('')
+          }
+          // 分页没有完成
+        } else {
+          this.setPaginate('')
+        }
       }
 
       return

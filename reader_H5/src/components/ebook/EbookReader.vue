@@ -294,7 +294,35 @@ export default {
           )
         })
         .then(locations => {
+          this.navigation.forEach(item => (item.pagelist = []))
           // console.log(locations)
+          locations.forEach(location => {
+            // epubcfi(/6/4[A323691_1_En_BookFrontmatter_OnlinePDF]!/4/2,/2/2/2/1:0,/4/22/1:177.00000000000023)
+            // href: "A323691_1_En_BookFrontmatter_OnlinePDF.html"
+            // locations信息中的一部分，对应href信息，可以判定是哪个章节
+            // console.log(locations, this.navigation)
+            const loc = location.match(/\[(.*)]!/)[1]
+            // console.log(loc)
+            this.navigation.forEach(nav => {
+              if (nav.href) {
+                const href = nav.href.match(/^(.*)\.html$/)[1]
+                if (href == loc) {
+                  nav.pagelist.push(location)
+                }
+              }
+            })
+            let currentPage = 1
+            this.navigation.forEach((nav, index) => {
+              if (index == 0) {
+                //封面
+                nav.page = 1
+              } else {
+                nav.page = currentPage
+              }
+              currentPage += nav.pagelist.length + 1
+            })
+          })
+          this.setPagelist(locations)
           this.setBookAvailable(true)
           this.refreshLocation()
         })
