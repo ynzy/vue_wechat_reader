@@ -143,7 +143,6 @@ export const ebookMixin = {
     },
     // 刷新章节定位
     refreshLocation() {
-      // console.log('刷新定位');
       const currentLocation = this.currentBook.rendition.currentLocation()
       const cur_cfi = currentLocation.start.cfi
       if (currentLocation?.start) {
@@ -156,10 +155,10 @@ export const ebookMixin = {
         // 书签显示问题，只有保存了书签章节的才显示书签
         const cfistart = cur_cfi
         const bookmark = Storage.getBookmark(this.fileName)
-        console.group('刷新定位');
+        /* console.group('刷新定位');
         console.log(cfistart);
         console.log(bookmark);
-        console.groupEnd();
+        console.groupEnd(); */
         if (bookmark) {
           if (bookmark.some(item => item.cfi === cfistart)) {
             // console.log('有当前书签');

@@ -5,7 +5,7 @@
       @touchmove="move"
       @touchend="moveEnd"
       @mousedown.left="onMouseEnter"
-      @mousemove.left="onMouseMove"
+      @mousemove="onMouseMove"
       @mouseup.left="onMouseEnd"
       @click="onMaskClick"
     ></div>
@@ -38,25 +38,29 @@ export default {
   },
   methods: {
     /**
+     * mouseState
      * 1-鼠标进入
      * 2-鼠标进入后的移动
      * 3-鼠标从移动状态松手
-     * 4-鼠标还原
+     * 4-鼠标还原(鼠标进入，点击之后什么都没做，就是点击了mask)
      */
     onMouseEnter(e) {
-      this.mouseMove = 1
-      this.mouseStartTime = e.timeStamp
+      this.mouseState = 1 // 鼠标的状态
+      this.mouseStartTime = e.timeStamp // 通过点击时间辅助进行判断，点击事件还是点击移动事件
       e.preventDefault()
       e.stopPropagation()
     },
     onMouseMove(e) {
-      if (this.mouseMove === 1) {
-        this.mouseMove = 2
-      } else if (this.mouseMove === 2) {
+      if (this.mouseState === 1) {
+        // 点下鼠标进入的时候
+        this.mouseState = 2
+      } else if (this.mouseState === 2) {
+        // 鼠标进入后移动 防止鼠标进入页面，没有点击也会进行计算
+        console.log(e)
         let offsetY = 0
         if (this.firstOffsetY) {
           offsetY = e.clientY - this.firstOffsetY
-          this.$store.commit('SET_OFFSETY', offsetY)
+          this.setOffsetY(offsetY)
         } else {
           this.firstOffsetY = e.clientY
         }
@@ -65,15 +69,17 @@ export default {
       e.stopPropagation()
     },
     onMouseEnd(e) {
-      if (this.mouseMove === 2) {
-        this.$store.dispatch('setOffsetY', 0)
+      if (this.mouseState === 2) {
+        this.setOffsetY(0) // 归位操作
         this.firstOffsetY = 0
-        this.mouseMove = 3
+        this.mouseState = 3 // 点击鼠标，移动，松开的状态
+      } else {
+        this.mouseState == 4
       }
       this.mouseEndTime = e.timeStamp
-      const time = this.mouseEndTime - this.mouseStartTime
+      const time = this.mouseEndTime - this.mouseStartTime // 点击时间差
       if (time < 200) {
-        this.mouseMove = 1
+        this.mouseState = 4
       }
       e.preventDefault()
       e.stopPropagation()
@@ -97,6 +103,9 @@ export default {
       this.firstOffsetY = 0
     },
     onMaskClick(e) {
+      if (this.mouseState == 2 || this.mouseState == 3) {
+        return
+      }
       const offsetX = e.offsetX
       const width = window.innerWidth
       // 上一页
@@ -239,7 +248,7 @@ export default {
         })
       })
       this.book.loaded.navigation.then(nav => {
-        console.log(nav)
+        // console.log(nav)
         const navItem = (function flatten(arr) {
           return [].concat(...arr.map(v => [v, ...flatten(v.subitems)]))
         })(nav.toc)
@@ -272,7 +281,7 @@ export default {
     initEpub(url) {
       // 解析电子书
       this.book = new Epub(url)
-      console.log(this.book)
+      // console.log(this.book)
       this.setCurrentBook(this.book)
       this.initRendition()
       // this.initGesture()
